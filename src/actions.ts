@@ -69,4 +69,4 @@ const reducer = (state: GlobeState = initialState, action: GlobeAction) => {
   }
 };
 
-export { reducer, GlobeAction, DisplayQuality };
+export { reducer, GlobeAction, DisplayQuality, ActiveMapLayer };

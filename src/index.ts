@@ -15,9 +15,7 @@ import { Fog, Globe, Scene } from "resium";
 import { terrainProvider, CTXLayer, MOLALayer, HillshadeLayer } from "./layers";
 
 const CesiumView = (props) => {
-  const { terrainExaggeration, displayQuality, terrainProvider } = props;
-
-  //const ellipsoid = Cesium.Ellipsoid(3396190, 3396190, 3376200)
+  const { terrainExaggeration, displayQuality, terrainProvider, children } = props;
 
   return h(
     GlobeViewer,
@@ -45,10 +43,7 @@ const CesiumView = (props) => {
       ),
       h(Scene, { requestRenderMode: true }),
       h(MapChangeTracker),
-      h(CTXLayer),
-      //h(MOLALayer),
-      //h(SatelliteLayer),
-      //h(HillshadeLayer),
+      children,
       //h(GeologyLayer, { alpha: 0.5 }),
       h(MapClickHandler),
       h(SelectedPoint),
