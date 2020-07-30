@@ -1,13 +1,16 @@
 import { useEffect, useRef, ComponentProps } from "react";
 import h from '@macrostrat/hyper'
 import { Viewer, CesiumComponentRef } from "resium";
-import NavigationMixin from "@znemz/cesium-navigation"
+import NavigationMixin, {Units} from "@znemz/cesium-navigation"
 import "@znemz/cesium-navigation/dist/index.css"
+import {format} from 'd3-format'
 const Cesium: any = require('cesiumSource/Cesium')
 
 type GlobeViewerProps = ComponentProps<typeof Viewer> & {
   highResolution: boolean
 }
+
+const fmt = format(".0f")
 
 const GlobeViewer = (props: GlobeViewerProps) => {
   const ref = useRef<CesiumComponentRef<Cesium.Viewer>>(null);
@@ -30,8 +33,13 @@ const GlobeViewer = (props: GlobeViewerProps) => {
   useEffect(() => {
     const {cesiumElement} = ref.current ?? {}
     if (cesiumElement == null) return
-    ref.current.cesiumElement.extend(NavigationMixin, {})
-    ref.current.cesiumElement.extend(Cesium.viewerCesiumInspectorMixin)
+    ref.current.cesiumElement.extend(NavigationMixin, {
+      distanceLabelFormatter: (convertedDistance, units: Units): string => {
+        // Convert for Mars (very janky)
+        return fmt(convertedDistance * 0.5)+" "+units
+      }
+    })
+    //ref.current.cesiumElement.extend(Cesium.viewerCesiumInspectorMixin)
 
   }, []);
 
@@ -43,11 +51,11 @@ const GlobeViewer = (props: GlobeViewerProps) => {
     homeButton: false,
     infoBox: false,
     navigationInstructionsInitiallyVisible: false,
-    navigationHelpButton: false,
+    navigationHelpButton: true,
     scene3DOnly: true,
     vrButton: false,
     geocoder: false,
-    //resolutionScale,
+    resolutionScale: false,
     //skyAtmosphere: true,
     animation: false,
     timeline: false,

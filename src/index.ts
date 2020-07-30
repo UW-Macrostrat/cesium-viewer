@@ -9,7 +9,7 @@ import {
   MapClickHandler,
   SelectedPoint,
   MapChangeTracker,
-  FlyToInitialPosition,
+  CameraPositioner,
 } from "./position";
 import { Fog, Globe, Scene } from "resium";
 import { terrainProvider, CTXLayer, MOLALayer, HillshadeLayer } from "./layers";
@@ -45,14 +45,14 @@ const CesiumView = (props) => {
       ),
       h(Scene, { requestRenderMode: true }),
       h(MapChangeTracker),
-      //h(CTXLayer),
+      h(CTXLayer),
       //h(MOLALayer),
       //h(SatelliteLayer),
-      h(HillshadeLayer),
+      //h(HillshadeLayer),
       //h(GeologyLayer, { alpha: 0.5 }),
       h(MapClickHandler),
       h(SelectedPoint),
-      h(FlyToInitialPosition),
+      h(CameraPositioner),
       h(Fog, { density: 1e-6 }),
     ]
   );

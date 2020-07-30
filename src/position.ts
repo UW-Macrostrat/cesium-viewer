@@ -7,12 +7,20 @@ import {
   useCesium,
   Entity,
   CameraFlyTo,
-  Camera
+  Camera,
 } from "resium"
 // import {
 //   queryMap,
 //   mapMoved
 // } from '../../actions'
+
+type Position = {x: number, y: number, z: number}
+
+interface CameraParams {
+  position: Position,
+  orientation: Position,
+  viewCenter: Position
+}
 
 const rangeAtZoom18 = 250 // ~ 250 m away
 
@@ -77,27 +85,19 @@ const SelectedPoint = (props)=>{
   return h(Entity, {position, point: pointGraphics})
 }
 
-const FlyToInitialPosition = (props)=>{
-  const mapOpts = useSelector(s => s.update)
-  //const mpos = mapOpts?.mapXYZ
-  const pos = {x: 77, y: 18.5, z: 10}
-  //if (mpos == null) return null
-
-  // Make sure we deactivate this once initial position is reached
-  //const currentPos = useState(null)
-
-
-  const z = distanceForZoom(pos.z)
-  const {x, y} = pos
-
-  const destination = new Cesium.Cartesian3.fromDegrees(
-    x, y, z
+function nadirCameraPosition(x: number, y: number, z: number) {
+  return new Cesium.Cartesian3.fromDegrees(
+    x, y, distanceForZoom(z)
   )
-
-  return h(CameraFlyTo, {destination, duration: 0, once: true})
 }
 
-const getMapCenter = (viewer: Cesium.Viewer)=>{
+const CameraPositioner = (props)=>{
+  const vals = useSelector(s => s.flyToProps)
+  if (vals == null) return null
+  return h(CameraFlyTo, {...props, ...vals})
+}
+
+const getMapCenter = (viewer: Cesium.Viewer): Position => {
   const centerPx = new Cesium.Cartesian2(
     viewer.container.clientWidth/2,
     viewer.container.clientHeight/2
@@ -112,13 +112,13 @@ const getMapCenter = (viewer: Cesium.Viewer)=>{
   const distance = Cesium.Cartesian3.distance(viewer.camera.position, pickPosition)
   const z = zoomForDistance(distance)
 
-  console.log(viewer.camera.position, viewer.camera.direction);
   return {x, y, z}
 }
 
-const getViewerPosition = (viewer: Cesium.Viewer)=>{
-  console.log(viewer.camera.position, viewer.camera.direction);
-  return {x, y, z}
+const getViewerPosition = (viewer: Cesium.Viewer): CameraParams =>{
+  const {position, direction} = viewer.camera;
+  const viewCenter = getMapCenter(viewer)
+  return {position, orientation: direction, viewCenter}
 }
 
 const MapChangeTracker = (props)=>{
@@ -132,4 +132,4 @@ const MapChangeTracker = (props)=>{
   return h(Camera, {onChange, onMoveEnd: onChange})
 }
 
-export {MapClickHandler, SelectedPoint, MapChangeTracker, FlyToInitialPosition}
+export {MapClickHandler, SelectedPoint, MapChangeTracker, CameraPositioner, nadirCameraPosition}
