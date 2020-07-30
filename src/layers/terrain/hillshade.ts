@@ -1,5 +1,5 @@
 import { useRef} from 'react'
-import {MapboxImageryProvider} from "cesium"
+import {WebMapTileServiceImageryProvider} from "cesium"
 import h from '@macrostrat/hyper'
 import {ImageryLayer} from "resium"
 import {useSelector} from 'react-redux'
@@ -9,7 +9,7 @@ import {vec3} from 'gl-matrix'
 
 type Img = HTMLImageElement|HTMLCanvasElement
 
-class HillshadeImageryProvider extends MapboxImageryProvider {
+class HillshadeImageryProvider extends WebMapTileServiceImageryProvider {
   processImage(image: Img, rect: Cesium.Rectangle): Img {
     const canvas = document.createElement("canvas");
     canvas.width = image.width;
@@ -23,7 +23,7 @@ class HillshadeImageryProvider extends MapboxImageryProvider {
 
     const angle = rect.east-rect.west
     // rough meters per pixel (could get directly from zoom level)
-    const pixelScale = 6371000*angle/image.width
+    const pixelScale = 3390000*angle/image.width
 
     const fboElevation = regl.framebuffer({
       width: image.width,
@@ -173,15 +173,20 @@ class HillshadeImageryProvider extends MapboxImageryProvider {
 }
 
 const HillshadeLayer = (props)=>{
-  const hasSatellite = useSelector(state => state.update.mapHasSatellite)
+  //const hasSatellite = useSelector(state => state.update.mapHasSatellite)
 
   let hillshade = useRef(new HillshadeImageryProvider({
-    mapId : 'mapbox.terrain-rgb',
-    maximumLevel : 14,
-    accessToken: process.env.MAPBOX_API_TOKEN
+    //mapId : 'mapbox.terrain-rgb',
+    style : 'default',
+    format : 'image/png',
+    maximumLevel : 12,
+    layer: "",
+    tileMatrixSetID: "",
+    credit : null,
+    url: 'http://localhost:8080/terrain/{TileMatrix}/{TileCol}/{TileRow}.png',
   }))
 
-  if (hasSatellite) return null
+  //if (hasSatellite) return null
   return h(ImageryLayer, {imageryProvider: hillshade.current, ...props})
 }
 

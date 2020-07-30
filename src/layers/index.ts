@@ -2,6 +2,7 @@ import { useRef, ComponentProps} from 'react'
 import {
   Credit,
   WebMapTileServiceImageryProvider,
+  TileMapServiceImageryProvider,
   MapboxImageryProvider
 } from "cesium"
 import h from '@macrostrat/hyper'
@@ -40,13 +41,35 @@ const CTXLayer = (props: GeoLayerProps)=>{
     maximumLevel : 14,
     layer: "",
     tileMatrixSetID: "",
-    credit : new Credit('UW-Madison, Macrostrat Lab'),
+    credit : new Credit('Murray Lab / CTX '),
   }))
 
   //if (!hasGeology) return null
 
   return h(ImageryLayer, {imageryProvider: ctx.current, ...props})
 }
+
+
+const MOLALayer = (props: GeoLayerProps)=>{
+
+  //const hasGeology = useSelector(state => state.update.mapHasBedrock)
+
+  let ctx = useRef(new TileMapServiceImageryProvider({
+    url : 'http://s3-eu-west-1.amazonaws.com/whereonmars.cartodb.net/mola-gray/{z}/{x}/{y}.png',
+    style : 'default',
+    format : 'image/png',
+    maximumLevel : 12,
+    layer: "",
+    tileMatrixSetID: "",
+    credit : new Credit('OpenPlanetaryMap/CARTO'),
+  }))
+
+  //if (!hasGeology) return null
+
+  return h(ImageryLayer, {imageryProvider: ctx.current, ...props})
+}
+
+
 
 
 const SatelliteLayer = (props)=>{
@@ -67,5 +90,5 @@ const SatelliteLayer = (props)=>{
   return h(ImageryLayer, {imageryProvider: satellite.current, ...props})
 }
 
-export {GeologyLayer, SatelliteLayer, CTXLayer}
+export {GeologyLayer, SatelliteLayer, CTXLayer, MOLALayer}
 export * from './terrain'

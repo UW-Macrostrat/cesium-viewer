@@ -112,6 +112,12 @@ const getMapCenter = (viewer: Cesium.Viewer)=>{
   const distance = Cesium.Cartesian3.distance(viewer.camera.position, pickPosition)
   const z = zoomForDistance(distance)
 
+  console.log(viewer.camera.position, viewer.camera.direction);
+  return {x, y, z}
+}
+
+const getViewerPosition = (viewer: Cesium.Viewer)=>{
+  console.log(viewer.camera.position, viewer.camera.direction);
   return {x, y, z}
 }
 
