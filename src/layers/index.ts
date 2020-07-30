@@ -29,6 +29,26 @@ const GeologyLayer = (props: GeoLayerProps)=>{
   return h(ImageryLayer, {imageryProvider: geology.current, ...props})
 }
 
+const CTXLayer = (props: GeoLayerProps)=>{
+
+  //const hasGeology = useSelector(state => state.update.mapHasBedrock)
+
+  let ctx = useRef(new WebMapTileServiceImageryProvider({
+    url : 'http://localhost:8080/ctx-global/{TileMatrix}/{TileCol}/{TileRow}/tile.png',
+    style : 'default',
+    format : 'image/png',
+    maximumLevel : 19,
+    layer: "",
+    tileMatrixSetID: "",
+    credit : new Credit('UW-Madison, Macrostrat Lab'),
+  }))
+
+  //if (!hasGeology) return null
+
+  return h(ImageryLayer, {imageryProvider: ctx.current, ...props})
+}
+
+
 const SatelliteLayer = (props)=>{
   const hasSatellite = useSelector(state => state.update.mapHasSatellite)
 
@@ -47,5 +67,5 @@ const SatelliteLayer = (props)=>{
   return h(ImageryLayer, {imageryProvider: satellite.current, ...props})
 }
 
-export {GeologyLayer, SatelliteLayer}
+export {GeologyLayer, SatelliteLayer, CTXLayer}
 export * from './terrain'

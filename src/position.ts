@@ -9,10 +9,10 @@ import {
   CameraFlyTo,
   Camera
 } from "resium"
-import {
-  queryMap,
-  mapMoved
-} from '../../actions'
+// import {
+//   queryMap,
+//   mapMoved
+// } from '../../actions'
 
 const rangeAtZoom18 = 250 // ~ 250 m away
 
@@ -39,7 +39,7 @@ const MapClickHandler = ()=>{
     const latitude = Cesium.Math.toDegrees(cartographic.latitude);
     //console.log(longitude, latitude);
     //addPoint(longitude, latitude)
-    dispatchAction(queryMap(longitude, latitude, 7, null))
+    //dispatchAction(queryMap(longitude, latitude, 7, null))
   }
 
   return h(ScreenSpaceEventHandler, [
@@ -52,6 +52,7 @@ const MapClickHandler = ()=>{
 
 const SelectedPoint = (props)=>{
   const mapOpts = useSelector(s => s.update)
+  if (mapOpts == null) return null
   const {
     infoMarkerLng,
     infoMarkerLat,
@@ -79,17 +80,17 @@ const SelectedPoint = (props)=>{
 const FlyToInitialPosition = (props)=>{
   const mapOpts = useSelector(s => s.update)
   const mpos = mapOpts?.mapXYZ
+  const pos = {x: 77, y: 18.5, z: 10}
   if (mpos == null) return null
 
   // Make sure we deactivate this once initial position is reached
   //const currentPos = useState(null)
 
 
-  const zoom = parseFloat(mpos.z)
-  const z = distanceForZoom(zoom)
+  const z = distanceForZoom(pos.z)
 
   const destination = new Cesium.Cartesian3.fromDegrees(
-    parseFloat(mpos.x), parseFloat(mpos.y), z
+    ...pos, z
   )
 
   return h(CameraFlyTo, {destination, duration: 0, once: true})
@@ -119,7 +120,7 @@ const MapChangeTracker = (props)=>{
   const onChange = ()=>{
     let cpos = getMapCenter(viewer);
     if (cpos == null) return
-    dispatch(mapMoved(cpos));
+    //dispatch(mapMoved(cpos));
   }
   return h(Camera, {onChange, onMoveEnd: onChange})
 }
