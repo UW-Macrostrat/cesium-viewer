@@ -14,14 +14,23 @@ import {
 //   mapMoved
 // } from '../../actions'
 
+const MARS_RADIUS_SCALAR = 3390/6371
+
 type Position = {x: number, y: number, z: number}
 
 interface CameraParams {
-  position: Position,
-  orientation: Position
+  longitude: number
+  latitude: number
+  height: number
+  heading: number
+  pitch: number
+  roll: number
 }
 
-type ViewParams = CameraParams & {viewCenter: Position}
+type ViewParams = {
+  camera: CameraParams,
+  viewCenter: Position
+}
 
 const rangeAtZoom18 = 250 // ~ 250 m away
 
@@ -116,10 +125,35 @@ const getMapCenter = (viewer: Cesium.Viewer): Position => {
   return {x, y, z}
 }
 
+const getCameraPosition = (viewer: Cesium.Viewer): CameraParams => {
+  const {camera} = viewer;
+  const pos = Cesium.Cartographic.fromCartesian(camera.position);
+  return {
+    longitude: Cesium.Math.toDegrees(pos.longitude),
+    latitude: Cesium.Math.toDegrees(pos.latitude),
+    height: pos.height*MARS_RADIUS_SCALAR,
+    heading: Cesium.Math.toDegrees(camera.heading),
+    pitch: Cesium.Math.toDegrees(camera.pitch),
+    roll: Cesium.Math.toDegrees(camera.roll)
+  }
+}
+
 const getPosition = (viewer: Cesium.Viewer): ViewParams =>{
-  const {position, direction} = viewer.camera;
   const viewCenter = getMapCenter(viewer)
-  return {position, orientation: direction, viewCenter}
+  const camera = getCameraPosition(viewer)
+  return {camera, viewCenter}
+}
+
+function flyToParams(pos: CameraParams, rest: any = {}) {
+  return {
+    destination: Cesium.Cartesian3.fromDegrees(pos.longitude, pos.latitude, pos.height/MARS_RADIUS_SCALAR),
+    orientation: {
+      heading: Cesium.Math.toRadians(pos.heading),
+      pitch: Cesium.Math.toRadians(pos.pitch),
+      roll: Cesium.Math.toRadians(pos.roll)
+    },
+    ...rest
+  }
 }
 
 const MapChangeTracker = (props)=>{
@@ -134,5 +168,6 @@ const MapChangeTracker = (props)=>{
 
 export {
   MapClickHandler, SelectedPoint, MapChangeTracker,
-  CameraPositioner, nadirCameraPosition, CameraParams
+  CameraPositioner, nadirCameraPosition, CameraParams, ViewParams,
+  flyToParams
 }
