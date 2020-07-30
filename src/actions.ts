@@ -1,4 +1,4 @@
-import {nadirCameraPosition} from "./position"
+import {nadirCameraPosition, CameraParams} from "./position"
 import {Props} from 'react'
 import {CameraFlyTo} from "resium"
 
@@ -29,19 +29,32 @@ type SetDisplayQuality = {
 
 type SetCameraPosition = {
   type: "set-camera-position";
-  value: CameraPosition
+  value: CameraParams
+}
+
+type FlyToPosition = {
+  type: "fly-to-position";
+  value: CameraParams
+}
+
+type FlyTo = {
+  type: "fly-to";
+  value: Props<typeof CameraFlyTo>
 }
 
 type GlobeAction =
   | SetExaggeration
   | SetDisplayQuality
   | SetCameraPosition
-  | SetMapLayer;
+  | SetMapLayer
+  | FlyToPosition
+  | FlyTo;
 
 interface GlobeState {
   verticalExaggeration: number;
   displayQuality: DisplayQuality;
   mapLayer: ActiveMapLayer;
+  cameraPosition: CameraPosition|null;
   flyToProps: Props<typeof CameraFlyTo>;
 }
 
@@ -51,6 +64,7 @@ const initialState = {
   verticalExaggeration: 1,
   displayQuality: DisplayQuality.Low,
   mapLayer: ActiveMapLayer.CTX,
+  cameraPosition: null,
   flyToProps: {destination, duration: 0, once: true}
 };
 
@@ -60,8 +74,14 @@ const reducer = (state: GlobeState = initialState, action: GlobeAction) => {
       return { ...state, verticalExaggeration: action.value };
     case "set-display-quality":
       return { ...state, displayQuality: action.value };
-    case "set-camera-position":
+    case "fly-to-position":
+      const {position, orientation} = action.value
+      const value = {destination: position, orientation: {direction: orientation}}
+      return reducer(state, {type: 'fly-to', value});
+    case 'fly-to':
       return { ...state, flyToProps: action.value };
+    case "set-camera-position":
+      return { ...state, cameraPosition: action.value };
     case "set-map-layer":
       return { ...state, activeMapLayer: action.value}
     default:

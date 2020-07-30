@@ -18,9 +18,10 @@ type Position = {x: number, y: number, z: number}
 
 interface CameraParams {
   position: Position,
-  orientation: Position,
-  viewCenter: Position
+  orientation: Position
 }
+
+type ViewParams = CameraParams & {viewCenter: Position}
 
 const rangeAtZoom18 = 250 // ~ 250 m away
 
@@ -115,7 +116,7 @@ const getMapCenter = (viewer: Cesium.Viewer): Position => {
   return {x, y, z}
 }
 
-const getViewerPosition = (viewer: Cesium.Viewer): CameraParams =>{
+const getPosition = (viewer: Cesium.Viewer): ViewParams =>{
   const {position, direction} = viewer.camera;
   const viewCenter = getMapCenter(viewer)
   return {position, orientation: direction, viewCenter}
@@ -125,11 +126,13 @@ const MapChangeTracker = (props)=>{
   const {viewer} = useCesium()
   const dispatch = useDispatch()
   const onChange = ()=>{
-    let cpos = getMapCenter(viewer);
-    if (cpos == null) return
-    //dispatch(mapMoved(cpos));
+    let params = getPosition(viewer);
+    dispatch({type: "set-camera-position", value: params})
   }
   return h(Camera, {onChange, onMoveEnd: onChange})
 }
 
-export {MapClickHandler, SelectedPoint, MapChangeTracker, CameraPositioner, nadirCameraPosition}
+export {
+  MapClickHandler, SelectedPoint, MapChangeTracker,
+  CameraPositioner, nadirCameraPosition, CameraParams
+}
