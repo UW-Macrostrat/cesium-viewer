@@ -34,10 +34,10 @@ const CTXLayer = (props: GeoLayerProps)=>{
   //const hasGeology = useSelector(state => state.update.mapHasBedrock)
 
   let ctx = useRef(new WebMapTileServiceImageryProvider({
-    url : 'http://localhost:8080/ctx-global/{TileMatrix}/{TileCol}/{TileRow}/tile.png',
+    url : 'http://localhost:8080/ctx-global/{TileMatrix}/{TileCol}/{TileRow}.png',
     style : 'default',
     format : 'image/png',
-    maximumLevel : 19,
+    maximumLevel : 14,
     layer: "",
     tileMatrixSetID: "",
     credit : new Credit('UW-Madison, Macrostrat Lab'),

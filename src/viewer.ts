@@ -3,6 +3,7 @@ import h from '@macrostrat/hyper'
 import { Viewer, CesiumComponentRef } from "resium";
 import NavigationMixin from "@znemz/cesium-navigation"
 import "@znemz/cesium-navigation/dist/index.css"
+const Cesium: any = require('cesiumSource/Cesium')
 
 type GlobeViewerProps = ComponentProps<typeof Viewer> & {
   highResolution: boolean
@@ -30,6 +31,8 @@ const GlobeViewer = (props: GlobeViewerProps) => {
     const {cesiumElement} = ref.current ?? {}
     if (cesiumElement == null) return
     ref.current.cesiumElement.extend(NavigationMixin, {})
+    ref.current.cesiumElement.extend(Cesium.viewerCesiumInspectorMixin)
+
   }, []);
 
   return h(Viewer, {

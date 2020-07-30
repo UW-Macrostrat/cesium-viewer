@@ -79,18 +79,19 @@ const SelectedPoint = (props)=>{
 
 const FlyToInitialPosition = (props)=>{
   const mapOpts = useSelector(s => s.update)
-  const mpos = mapOpts?.mapXYZ
+  //const mpos = mapOpts?.mapXYZ
   const pos = {x: 77, y: 18.5, z: 10}
-  if (mpos == null) return null
+  //if (mpos == null) return null
 
   // Make sure we deactivate this once initial position is reached
   //const currentPos = useState(null)
 
 
   const z = distanceForZoom(pos.z)
+  const {x, y} = pos
 
   const destination = new Cesium.Cartesian3.fromDegrees(
-    ...pos, z
+    x, y, z
   )
 
   return h(CameraFlyTo, {destination, duration: 0, once: true})

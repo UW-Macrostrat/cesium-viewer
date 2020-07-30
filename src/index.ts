@@ -49,7 +49,7 @@ const CesiumView = (props) => {
       h(MapClickHandler),
       h(SelectedPoint),
       h(FlyToInitialPosition),
-      h(Fog, { density: 1e-4 }),
+      h(Fog, { density: 1e-6 }),
     ]
   );
 };
@@ -60,4 +60,5 @@ CesiumView.defaultProps = {
   displayQuality: DisplayQuality.Low,
 };
 
+export {DisplayQuality}
 export default CesiumView;
