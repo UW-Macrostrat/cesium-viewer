@@ -43,12 +43,19 @@ type FlyTo = {
   value: Props<typeof CameraFlyTo>
 }
 
+type FlyToNamedLocation = {
+  type: "fly-to-named-location";
+  value: string
+  extra?: object
+}
+
 type GlobeAction =
   | SetExaggeration
   | SetDisplayQuality
   | SetCameraPosition
   | SetMapLayer
   | FlyToPosition
+  | FlyToNamedLocation
   | FlyTo;
 
 interface GlobeState {
@@ -57,6 +64,7 @@ interface GlobeState {
   mapLayer: ActiveMapLayer;
   position: ViewParams|null;
   flyToProps: Props<typeof CameraFlyTo>;
+  namedLocation: string|null;
 }
 
 const destination = nadirCameraPosition(77.433, 18.411, 9);
@@ -66,7 +74,8 @@ const initialState = {
   displayQuality: DisplayQuality.Low,
   mapLayer: ActiveMapLayer.CTX,
   position: null,
-  flyToProps: {destination, duration: 0, once: true}
+  flyToProps: {destination, duration: 0, once: true},
+  namedLocation: null
 };
 
 const reducer = (state: GlobeState = initialState, action: GlobeAction) => {
@@ -75,9 +84,15 @@ const reducer = (state: GlobeState = initialState, action: GlobeAction) => {
       return { ...state, verticalExaggeration: action.value };
     case "set-display-quality":
       return { ...state, displayQuality: action.value };
-    case "fly-to-position":
+    case "fly-to-position": {
       const value = flyToParams(action.value, action.extra)
       return reducer(state, {type: 'fly-to', value});
+    }
+    case 'fly-to-named-location':
+      const {value, extra} = action
+      if (value == state.namedLocation) return
+      const pos = action.positions[value]
+      return reducer(state, {type: "fly-to-position", value: pos, extra})
     case 'fly-to':
       return { ...state, flyToProps: action.value };
     case "set-camera-position":
