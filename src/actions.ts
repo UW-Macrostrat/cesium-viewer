@@ -59,7 +59,7 @@ interface GlobeState {
   flyToProps: Props<typeof CameraFlyTo>;
 }
 
-const destination = nadirCameraPosition(77, 18.5, 10);
+const destination = nadirCameraPosition(77.433, 18.411, 9);
 
 const initialState = {
   verticalExaggeration: 1,

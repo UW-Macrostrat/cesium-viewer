@@ -36,7 +36,10 @@ const GlobeViewer = (props: GlobeViewerProps) => {
     ref.current.cesiumElement.extend(NavigationMixin, {
       distanceLabelFormatter: (convertedDistance, units: Units): string => {
         // Convert for Mars (very janky)
-        return fmt(convertedDistance * 0.5)+" "+units
+        let u = ""
+        if (units == "meters") u = "m"
+        if (units == "kilometers") u = "km"
+        return fmt(convertedDistance * 0.5)+" "+u
       }
     })
     //ref.current.cesiumElement.extend(Cesium.viewerCesiumInspectorMixin)
