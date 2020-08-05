@@ -1,55 +1,57 @@
 import { useEffect, useRef, ComponentProps } from "react";
-import h from '@macrostrat/hyper'
+import h from "@macrostrat/hyper";
 import { Viewer, CesiumComponentRef } from "resium";
-import NavigationMixin, {Units} from "@znemz/cesium-navigation"
-import "@znemz/cesium-navigation/dist/index.css"
-import {format} from 'd3-format'
-const Cesium: any = require('cesiumSource/Cesium')
+import NavigationMixin, { Units } from "@znemz/cesium-navigation";
+import "@znemz/cesium-navigation/dist/index.css";
+import { format } from "d3-format";
+const Cesium: any = require("cesiumSource/Cesium");
 
 type GlobeViewerProps = ComponentProps<typeof Viewer> & {
-  highResolution: boolean
-}
+  highResolution: boolean;
+};
 
-const fmt = format(".0f")
+const fmt = format(".0f");
 
 const GlobeViewer = (props: GlobeViewerProps) => {
   const ref = useRef<CesiumComponentRef<Cesium.Viewer>>(null);
-  const {highResolution, ...rest} = props
+  const { highResolution, ...rest } = props;
 
-  let resolutionScale = 1
+  let resolutionScale = 1;
   if (highResolution) {
-    resolutionScale = Math.min(window.devicePixelRatio ?? 1, 2)
+    resolutionScale = Math.min(window.devicePixelRatio ?? 1, 2);
   }
   useEffect(() => {
-    const {cesiumElement} = ref.current ?? {}
-    if (cesiumElement == null) return
+    const { cesiumElement } = ref.current ?? {};
+    if (cesiumElement == null) return;
 
-    ref.current.cesiumElement.resolutionScale = resolutionScale
+    ref.current.cesiumElement.resolutionScale = resolutionScale;
 
     // Enable anti-aliasing
-    ref.current.cesiumElement.scene.postProcessStages.fxaa.enabled = true
+    ref.current.cesiumElement.scene.postProcessStages.fxaa.enabled = true;
   }, [resolutionScale]);
 
   useEffect(() => {
-    const {cesiumElement} = ref.current ?? {}
-    if (cesiumElement == null) return
+    const { cesiumElement } = ref.current ?? {};
+    if (cesiumElement == null) return;
     ref.current.cesiumElement.extend(NavigationMixin, {
       distanceLabelFormatter: (convertedDistance, units: Units): string => {
         // Convert for Mars (very janky)
-        let u = ""
-        if (units == "meters") u = "m"
-        if (units == "kilometers") u = "km"
-        return fmt(convertedDistance * 0.5)+" "+u
-      }
-    })
+        let u = "";
+        if (units == "meters") u = "m";
+        if (units == "kilometers") u = "km";
+        if (u == "km" && convertedDistance * 0.5 < 0.5) {
+          return fmt(convertedDistance * 500) + " m";
+        }
+        return fmt(convertedDistance * 0.5) + " " + u;
+      },
+    });
     //ref.current.cesiumElement.extend(Cesium.viewerCesiumInspectorMixin)
-
   }, []);
 
   return h(Viewer, {
     ref,
     full: true,
-    baseLayerPicker : false,
+    baseLayerPicker: false,
     fullscreenButton: false,
     homeButton: false,
     infoBox: false,
@@ -64,8 +66,8 @@ const GlobeViewer = (props: GlobeViewerProps) => {
     timeline: false,
     imageryProvider: false,
     //shadows: true,
-    ...rest
-  })
+    ...rest,
+  });
 };
 
-export {GlobeViewer}
+export { GlobeViewer };
