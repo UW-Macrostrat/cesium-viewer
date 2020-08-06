@@ -1,6 +1,6 @@
 import {
   nadirCameraPosition,
-  ViewParams,
+  ViewData,
   CameraParams,
   flyToParams,
 } from "./position";
@@ -11,6 +11,13 @@ enum ActiveMapLayer {
   CTX,
   Hillshade,
 }
+
+interface CameraParamsExt {
+  camera?: CameraParams;
+  mapLayer?: ActiveMapLayer;
+}
+
+type ViewParams = CameraParams | CameraParamsExt;
 
 type SetExaggeration = {
   type: "set-exaggeration";
@@ -34,12 +41,12 @@ type SetDisplayQuality = {
 
 type SetCameraPosition = {
   type: "set-camera-position";
-  value: ViewParams;
+  value: ViewData;
 };
 
 type FlyToPosition = {
   type: "fly-to-position";
-  value: CameraParams;
+  value: ViewParams;
   extra?: object;
 };
 
@@ -72,7 +79,7 @@ interface GlobeState {
   verticalExaggeration: number;
   displayQuality: DisplayQuality;
   mapLayer: ActiveMapLayer;
-  position: ViewParams | null;
+  position: ViewData | null;
   flyToProps: Props<typeof CameraFlyTo>;
   namedLocation: string | null;
 }
@@ -95,6 +102,18 @@ const createInitialState = (args = {}) => {
   return state;
 };
 
+function isCameraParams(v: ViewParams): v is CameraParams {
+  return v.camera === undefined && v.mapLayer === undefined;
+}
+
+const expandViewChange = (val: ViewParams): CameraParamsExt => {
+  if (isCameraParams(val)) {
+    return { camera: val };
+  } else {
+    return val;
+  }
+};
+
 const reducer = (state: GlobeState = initialState, action: GlobeAction) => {
   switch (action.type) {
     case "set-exaggeration":
@@ -102,19 +121,24 @@ const reducer = (state: GlobeState = initialState, action: GlobeAction) => {
     case "set-display-quality":
       return { ...state, displayQuality: action.value };
     case "fly-to-position": {
-      const value = flyToParams(action.value, action.extra);
-      return reducer(state, { type: "fly-to", value });
+      const { camera, mapLayer } = expandViewChange(action.value);
+      let newState: GlobeState = state;
+      newState["mapLayer"] = mapLayer ?? initialState.mapLayer;
+      if (camera != null) {
+        const value = flyToParams(camera, camera.extra);
+        newState = reducer(state, { type: "fly-to", value });
+      }
+      console.log(newState);
+      return newState;
     }
     case "fly-to-named-location":
       const { value, extra } = action;
       if (value == state.namedLocation) return state;
       const pos = state.positions[value];
       if (pos == null) return state;
-      return {
-        ...state,
-        namedLocation: value,
-        flyToProps: flyToParams(pos, action.extra),
-      };
+      let newState = reducer(state, { type: "fly-to-position", value: pos });
+      newState.namedLocation = value;
+      return newState;
     case "fly-to":
       return { ...state, flyToProps: action.value };
     case "set-camera-position":
