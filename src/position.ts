@@ -27,7 +27,7 @@ interface CameraParams {
   roll: number;
 }
 
-type ViewData = {
+type ViewInfo = {
   camera: CameraParams;
   viewCenter: Position;
 };
@@ -136,7 +136,7 @@ const getCameraPosition = (viewer: Cesium.Viewer): CameraParams => {
   };
 };
 
-const getPosition = (viewer: Cesium.Viewer): ViewData => {
+const getPosition = (viewer: Cesium.Viewer): ViewInfo => {
   const viewCenter = getMapCenter(viewer);
   const camera = getCameraPosition(viewer);
   return { camera, viewCenter };
@@ -175,6 +175,6 @@ export {
   CameraPositioner,
   nadirCameraPosition,
   CameraParams,
-  ViewData,
+  ViewInfo,
   flyToParams,
 };
