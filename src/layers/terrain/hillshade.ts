@@ -1,34 +1,34 @@
-import { useRef} from 'react'
-import {WebMapTileServiceImageryProvider} from "cesium"
-import h from '@macrostrat/hyper'
-import {ImageryLayer} from "resium"
-import {useSelector} from 'react-redux'
-import REGL from 'regl'
-import {vec3} from 'gl-matrix'
+import { useRef } from "react";
+import { WebMapTileServiceImageryProvider } from "cesium";
+import h from "@macrostrat/hyper";
+import { ImageryLayer } from "resium";
+import { useSelector } from "react-redux";
+import REGL from "regl";
+import { vec3 } from "gl-matrix";
 // https://wwwtyro.net/2019/03/21/advanced-map-shading.html
 
-type Img = HTMLImageElement|HTMLCanvasElement
+type Img = HTMLImageElement | HTMLCanvasElement;
 
 class HillshadeImageryProvider extends WebMapTileServiceImageryProvider {
   processImage(image: Img, rect: Cesium.Rectangle): Img {
     const canvas = document.createElement("canvas");
     canvas.width = image.width;
     canvas.height = image.height;
-    const regl = REGL({ canvas, extensions: ["OES_texture_float"]});
+    const regl = REGL({ canvas, extensions: ["OES_texture_float"] });
 
     const tElevation = regl.texture({
       data: image,
-      flipY: true
+      flipY: true,
     });
 
-    const angle = rect.east-rect.west
+    const angle = rect.east - rect.west;
     // rough meters per pixel (could get directly from zoom level)
-    const pixelScale = 3390000*angle/image.width
+    const pixelScale = (3390000 * angle) / image.width;
 
     const fboElevation = regl.framebuffer({
       width: image.width,
       height: image.height,
-      colorType: "float"
+      colorType: "float",
     });
 
     const cmdProcessElevation = regl({
@@ -59,24 +59,24 @@ class HillshadeImageryProvider extends WebMapTileServiceImageryProvider {
         }
       `,
       attributes: {
-        position: [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1]
+        position: [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1],
       },
       uniforms: {
         tElevation: tElevation,
         elevationScale: 1.0,
-        resolution: [image.width, image.height]
+        resolution: [image.width, image.height],
       },
       viewport: { x: 0, y: 0, width: image.width, height: image.height },
       count: 6,
       framebuffer: fboElevation,
     });
 
-    cmdProcessElevation()
+    cmdProcessElevation();
 
     const fboNormal = regl.framebuffer({
       width: image.width,
       height: image.height,
-      colorType: "float"
+      colorType: "float",
     });
 
     const cmdNormal = regl({
@@ -110,16 +110,16 @@ class HillshadeImageryProvider extends WebMapTileServiceImageryProvider {
         }
       `,
       attributes: {
-        position: [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1]
+        position: [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1],
       },
       uniforms: {
         tElevation: fboElevation,
         pixelScale: pixelScale,
-        resolution: [image.width, image.height]
+        resolution: [image.width, image.height],
       },
       viewport: { x: 0, y: 0, width: image.width, height: image.height },
       count: 6,
-      framebuffer: fboNormal
+      framebuffer: fboNormal,
     });
 
     cmdNormal();
@@ -149,46 +149,49 @@ class HillshadeImageryProvider extends WebMapTileServiceImageryProvider {
         }
       `,
       attributes: {
-        position: [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1]
+        position: [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1],
       },
       uniforms: {
         tNormal: fboNormal,
         tElevation: fboElevation,
         resolution: [image.width, image.height],
-        sunDirection: vec3.normalize([], [1, 1, 0.5])
+        sunDirection: vec3.normalize([], [1, 1, 0.5]),
       },
       viewport: { x: 0, y: 0, width: image.width, height: image.height },
-      count: 6
+      count: 6,
     });
 
     cmdDirect();
 
-    return canvas
+    return canvas;
   }
-  requestImage(x,y,z,request) {
-    const res = super.requestImage(x,y,z,request)
-    const rect = this.tilingScheme.tileXYToRectangle(x, y, z)
-    return res?.then(d=>this.processImage(d, rect))
+  requestImage(x, y, z, request) {
+    const res = super.requestImage(x, y, z, request);
+    const rect = this.tilingScheme.tileXYToRectangle(x, y, z);
+    return res?.then((d) => this.processImage(d, rect));
   }
 }
 
-const HillshadeLayer = (props)=>{
+const HillshadeLayer = (props) => {
   //const hasSatellite = useSelector(state => state.update.mapHasSatellite)
 
-  let hillshade = useRef(new HillshadeImageryProvider({
-    //mapId : 'mapbox.terrain-rgb',
-    style : 'default',
-    format : 'image/png',
-    maximumLevel : 12,
-    layer: "",
-    tileMatrixSetID: "",
-    credit : null,
-    url: 'http://localhost:8080/terrain/{TileMatrix}/{TileCol}/{TileRow}.png',
-  }))
+  let hillshade = useRef(
+    new HillshadeImageryProvider({
+      //mapId : 'mapbox.terrain-rgb',
+      style: "default",
+      format: "image/png",
+      maximumLevel: 14,
+      layer: "",
+      tileMatrixSetID: "",
+      credit: null,
+      url:
+        process.env.API_BASE_URL +
+        "/terrain/{TileMatrix}/{TileCol}/{TileRow}.png",
+    })
+  );
 
   //if (hasSatellite) return null
-  return h(ImageryLayer, {imageryProvider: hillshade.current, ...props})
-}
+  return h(ImageryLayer, { imageryProvider: hillshade.current, ...props });
+};
 
-
-export {HillshadeLayer}
+export { HillshadeLayer };
