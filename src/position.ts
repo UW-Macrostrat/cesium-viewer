@@ -168,6 +168,20 @@ const MapChangeTracker = (props) => {
   return h(Camera, { onChange, onMoveEnd: onChange });
 };
 
+// We should be able to specify a unique viewpoint using 5 parameters as follows
+// x=50&y=40&h=500&i=0&a=0
+/* x: longitude,
+   y: latitude,
+   d: distance (object reference frame)
+OR h: height above datum (absolute camera ref)
+   e: elevation angle (0 is vertical, 90 is horizontal),
+   a: azimuth, angle 0-360
+   NOTE: this depends on terrain elevation so is unstable
+   - Elevation and azimuth stay the same for both absolute camera position
+     and position around an outcrop
+   - Distance/height is the only relevant difference
+*/
+
 export {
   MapClickHandler,
   SelectedPoint,
