@@ -191,4 +191,5 @@ export {
   CameraParams,
   ViewInfo,
   flyToParams,
+  MARS_RADIUS_SCALAR,
 };
