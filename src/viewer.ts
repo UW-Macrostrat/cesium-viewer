@@ -33,6 +33,7 @@ const GlobeViewer = (props: GlobeViewerProps) => {
   useEffect(() => {
     const { cesiumElement } = ref.current ?? {};
     if (cesiumElement == null) return;
+
     ref.current.cesiumElement.extend(NavigationMixin, {
       distanceLabelFormatter: (convertedDistance, units: Units): string => {
         // Convert for Mars (very janky)
@@ -53,6 +54,10 @@ const GlobeViewer = (props: GlobeViewerProps) => {
     full: true,
     baseLayerPicker: false,
     fullscreenButton: false,
+    mapProjection: new Cesium.GeographicProjection(
+      Cesium.Ellipsoid.MARSIAU2000
+    ),
+    globe: new Cesium.Globe(Cesium.Ellipsoid.MARSIAU2000),
     homeButton: false,
     infoBox: false,
     navigationInstructionsInitiallyVisible: false,

@@ -15,7 +15,12 @@ import { Fog, Globe, Scene } from "resium";
 import { terrainProvider, CTXLayer, MOLALayer, HillshadeLayer } from "./layers";
 
 const CesiumView = (props) => {
-  const { terrainExaggeration, displayQuality, terrainProvider, children } = props;
+  const {
+    terrainExaggeration,
+    displayQuality,
+    terrainProvider,
+    children,
+  } = props;
 
   return h(
     GlobeViewer,
@@ -31,7 +36,6 @@ const CesiumView = (props) => {
       h(
         Globe,
         {
-          //ellipsoid,
           baseColor: Cesium.Color.LIGHTGRAY,
           enableLighting: false,
           showGroundAtmosphere: true,
@@ -59,5 +63,5 @@ CesiumView.defaultProps = {
   displayQuality: DisplayQuality.Low,
 };
 
-export {DisplayQuality}
+export { DisplayQuality };
 export default CesiumView;
