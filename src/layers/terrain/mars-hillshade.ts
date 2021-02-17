@@ -172,7 +172,7 @@ class HillshadeImageryProvider extends WebMapTileServiceImageryProvider {
   }
 }
 
-const HillshadeLayer = (props) => {
+const MarsHillshadeLayer = (props) => {
   //const hasSatellite = useSelector(state => state.update.mapHasSatellite)
 
   let hillshade = useRef(
@@ -194,4 +194,4 @@ const HillshadeLayer = (props) => {
   return h(ImageryLayer, { imageryProvider: hillshade.current, ...props });
 };
 
-export { HillshadeLayer };
+export { MarsHillshadeLayer };
