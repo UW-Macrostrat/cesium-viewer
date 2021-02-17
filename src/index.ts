@@ -51,7 +51,7 @@ const CesiumView = (props) => {
         null
       ),
       h(Scene, { requestRenderMode: true }),
-      h.if(onViewChange != null)(MapChangeTracker, { onChange: onViewChange }),
+      h(MapChangeTracker),
       children,
       h.if(onClick != null)(MapClickHandler, { onClick }),
       //h(SelectedPoint),
