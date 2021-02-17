@@ -8,8 +8,8 @@ import { Props } from "react";
 import { CameraFlyTo } from "resium";
 
 enum ActiveMapLayer {
-  CTX,
-  Hillshade,
+  CTX = "ctx",
+  Hillshade = "hillshade",
 }
 
 interface CameraParamsExt {
@@ -144,7 +144,7 @@ const reducer = (state: GlobeState = initialState, action: GlobeAction) => {
     case "set-camera-position":
       return { ...state, position: action.value };
     case "set-map-layer":
-      return { ...state, activeMapLayer: action.value };
+      return { ...state, mapLayer: action.value };
     default:
       return state;
   }
