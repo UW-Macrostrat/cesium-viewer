@@ -57,7 +57,7 @@ const CesiumView = (props) => {
       //h(SelectedPoint),
       //h(FlyToInitialPosition),
       h(CameraPositioner),
-      h(Fog, { density: 1e-4 }),
+      h(Fog, { density: 1e-6 }),
     ]
   );
 };
