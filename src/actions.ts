@@ -8,6 +8,16 @@ enum DisplayQuality {
   Low = "low",
 }
 
+type QueryGlobe = {
+  type: "query-globe",
+  value: {
+    latitude: number,
+    longitude: number,
+    zoom: number,
+    map_id: string|null
+  }
+}
+
 type SetDisplayQuality = {
   type: "set-display-quality";
   value: DisplayQuality;
@@ -18,7 +28,11 @@ type SetShowInspector = {
   value: boolean;
 };
 
-type GlobeAction = SetExaggeration | SetDisplayQuality | SetShowInspector;
+type GlobeAction =
+  | SetExaggeration
+  | SetDisplayQuality
+  | SetShowInspector
+  | QueryGlobe;
 
 interface GlobeState {
   verticalExaggeration: number;
@@ -36,11 +50,8 @@ const reducer = (state: GlobeState = initialState, action: GlobeAction) => {
       return { ...state, verticalExaggeration: action.value };
     case "set-display-quality":
       return { ...state, displayQuality: action.value };
-<<<<<<< HEAD
-=======
     case "set-show-inspector":
       return { ...state, showInspector: action.value };
->>>>>>> mergechanges
     default:
       return state;
   }
