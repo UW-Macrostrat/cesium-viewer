@@ -19,7 +19,7 @@ const CesiumView = (props) => {
   const {
     terrainExaggeration,
     showInspector,
-    displayQuality,
+    displayQuality = DisplayQuality.High,
     onClick,
     onViewChange,
   } = props;

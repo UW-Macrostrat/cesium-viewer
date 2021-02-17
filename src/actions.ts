@@ -9,14 +9,14 @@ enum DisplayQuality {
 }
 
 type QueryGlobe = {
-  type: "query-globe",
+  type: "query-globe";
   value: {
-    latitude: number,
-    longitude: number,
-    zoom: number,
-    map_id: string|null
-  }
-}
+    latitude: number;
+    longitude: number;
+    zoom: number;
+    map_id: string | null;
+  };
+};
 
 type SetDisplayQuality = {
   type: "set-display-quality";
@@ -41,7 +41,7 @@ interface GlobeState {
 
 const initialState = {
   verticalExaggeration: 1,
-  displayQuality: DisplayQuality.Low,
+  displayQuality: DisplayQuality.High,
 };
 
 const reducer = (state: GlobeState = initialState, action: GlobeAction) => {
