@@ -10,16 +10,20 @@ import {
   SelectedPoint,
   MapChangeTracker,
   CameraPositioner,
+  FlyToInitialPosition,
 } from "./position";
 import { Fog, Globe, Scene } from "resium";
-import { terrainProvider, CTXLayer, MOLALayer, HillshadeLayer } from "./layers";
+import { terrainProvider } from "./layers";
 
 const CesiumView = (props) => {
   const {
-    terrainExaggeration,
-    displayQuality,
+    terrainExaggeration = 1.0,
     terrainProvider,
     children,
+    showInspector,
+    displayQuality = DisplayQuality.High,
+    onClick,
+    onViewChange,
   } = props;
 
   return h(
@@ -28,8 +32,9 @@ const CesiumView = (props) => {
       terrainProvider,
       // not sure why we have to do this...
       terrainExaggeration,
-      highResolution: displayQuality,
+      highResolution: displayQuality == DisplayQuality.High,
       skyBox: false,
+      showInspector,
       //terrainShadows: Cesium.ShadowMode.ENABLED
     },
     [
@@ -48,19 +53,13 @@ const CesiumView = (props) => {
       h(Scene, { requestRenderMode: true }),
       h(MapChangeTracker),
       children,
-      //h(GeologyLayer, { alpha: 0.5 }),
-      h(MapClickHandler),
-      h(SelectedPoint),
+      h.if(onClick != null)(MapClickHandler, { onClick }),
+      //h(SelectedPoint),
+      //h(FlyToInitialPosition),
       h(CameraPositioner),
-      h(Fog, { density: 1e-6 }),
+      h(Fog, { density: 1e-4 }),
     ]
   );
-};
-
-CesiumView.defaultProps = {
-  terrainProvider,
-  terrainExaggeration: 1.0,
-  displayQuality: DisplayQuality.Low,
 };
 
 export { DisplayQuality };

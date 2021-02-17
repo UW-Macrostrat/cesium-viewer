@@ -34,6 +34,16 @@ enum DisplayQuality {
   Low = "low",
 }
 
+type QueryGlobe = {
+  type: "query-globe";
+  value: {
+    latitude: number;
+    longitude: number;
+    zoom: number;
+    map_id: string | null;
+  };
+};
+
 type SetDisplayQuality = {
   type: "set-display-quality";
   value: DisplayQuality;
@@ -61,10 +71,16 @@ type FlyToNamedLocation = {
   extra?: object;
 };
 
+type SetShowInspector = {
+  type: "set-show-inspector";
+  value: boolean;
+};
+
 type GlobeAction =
   | SetExaggeration
   | SetDisplayQuality
   | SetCameraPosition
+  | SetShowInspector
   | SetMapLayer
   | FlyToPosition
   | FlyToNamedLocation
@@ -145,6 +161,8 @@ const reducer = (state: GlobeState = initialState, action: GlobeAction) => {
       return { ...state, position: action.value };
     case "set-map-layer":
       return { ...state, mapLayer: action.value };
+    case "set-show-inspector":
+      return { ...state, showInspector: action.value };
     default:
       return state;
   }

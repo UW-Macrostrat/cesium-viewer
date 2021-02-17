@@ -1,21 +1,15 @@
 import { useRef } from "react";
-import { MapboxImageryProvider } from "cesium";
+import { WebMapTileServiceImageryProvider } from "cesium";
 import h from "@macrostrat/hyper";
 import { ImageryLayer } from "resium";
 import { useSelector } from "react-redux";
 import REGL from "regl";
 import { vec3 } from "gl-matrix";
-import { terrainProvider } from "./provider";
 // https://wwwtyro.net/2019/03/21/advanced-map-shading.html
 
 type Img = HTMLImageElement | HTMLCanvasElement;
 
-class HillshadeImageryProvider extends MapboxImageryProvider {
-  // Fib about tile size in order to download fewer elevation tiles
-  tileWidth = 512;
-  tileHeight = 512;
-  terrainProvider = terrainProvider;
-
+class HillshadeImageryProvider extends WebMapTileServiceImageryProvider {
   processImage(image: Img, rect: Cesium.Rectangle): Img {
     const canvas = document.createElement("canvas");
     canvas.width = image.width;
@@ -32,7 +26,7 @@ class HillshadeImageryProvider extends MapboxImageryProvider {
 
     const angle = rect.east - rect.west;
     // rough meters per pixel (could get directly from zoom level)
-    const pixelScale = (6371000 * angle) / image.width;
+    const pixelScale = (3390000 * angle) / image.width;
 
     const fboElevation = regl.framebuffer({
       width: image.width,
@@ -179,27 +173,32 @@ class HillshadeImageryProvider extends MapboxImageryProvider {
     return canvas;
   }
   requestImage(x, y, z, request) {
-    const res = this.terrainProvider.backend.requestImage(x, y, z, request);
-    if (res == null) return undefined;
+    const res = super.requestImage(x, y, z, request);
     const rect = this.tilingScheme.tileXYToRectangle(x, y, z);
-    return res.then((d) => this.processImage(d, rect));
+    return res?.then((d) => this.processImage(d, rect));
   }
 }
 
-const HillshadeLayer = (props) => {
-  const hasSatellite = useSelector((state) => state.update.mapHasSatellite);
+const MarsHillshadeLayer = (props) => {
+  //const hasSatellite = useSelector(state => state.update.mapHasSatellite)
 
   let hillshade = useRef(
     new HillshadeImageryProvider({
-      mapId: "mapbox.terrain-rgb",
+      //mapId : 'mapbox.terrain-rgb',
+      style: "default",
+      format: "image/png",
       maximumLevel: 14,
-      accessToken: process.env.MAPBOX_API_TOKEN,
-      format: "@2x.webp",
+      layer: "",
+      tileMatrixSetID: "",
+      credit: null,
+      url:
+        process.env.API_BASE_URL +
+        "/terrain/{TileMatrix}/{TileCol}/{TileRow}.png",
     })
   );
 
-  if (hasSatellite) return null;
+  //if (hasSatellite) return null
   return h(ImageryLayer, { imageryProvider: hillshade.current, ...props });
 };
 
-export { HillshadeLayer };
+export { MarsHillshadeLayer };
