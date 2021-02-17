@@ -21,14 +21,17 @@ const CesiumView = (props) => {
     useSelector((state) => state.globe.verticalExaggeration) ?? 1.0;
   const displayQuality = useSelector((state) => state.globe.displayQuality);
 
+  const showInspector = useSelector((state) => state.globe.showInspector);
+
   return h(
     GlobeViewer,
     {
       terrainProvider,
       // not sure why we have to do this...
       terrainExaggeration: exaggeration,
-      highResolution: displayQuality,
+      highResolution: displayQuality == DisplayQuality.High,
       skyBox: false,
+      showInspector,
       //terrainShadows: Cesium.ShadowMode.ENABLED
     },
     [
@@ -39,7 +42,7 @@ const CesiumView = (props) => {
           enableLighting: false,
           showGroundAtmosphere: true,
           maximumScreenSpaceError:
-            displayQuality == DisplayQuality.High ? 1.5 : 2,
+            displayQuality == DisplayQuality.High ? 2 : 3,
           //shadowMode: Cesium.ShadowMode.ENABLED
         },
         null

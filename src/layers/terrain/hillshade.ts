@@ -5,16 +5,25 @@ import { ImageryLayer } from "resium";
 import { useSelector } from "react-redux";
 import REGL from "regl";
 import { vec3 } from "gl-matrix";
+import { terrainProvider } from "./provider";
 // https://wwwtyro.net/2019/03/21/advanced-map-shading.html
 
 type Img = HTMLImageElement | HTMLCanvasElement;
 
 class HillshadeImageryProvider extends MapboxImageryProvider {
+  // Fib about tile size in order to download fewer elevation tiles
+  tileWidth = 512;
+  tileHeight = 512;
+  terrainProvider = terrainProvider;
+
   processImage(image: Img, rect: Cesium.Rectangle): Img {
     const canvas = document.createElement("canvas");
     canvas.width = image.width;
     canvas.height = image.height;
-    const regl = REGL({ canvas, extensions: ["OES_texture_float"] });
+    const regl = REGL({
+      canvas,
+      extensions: ["OES_texture_float", "WEBGL_color_buffer_float"],
+    });
 
     const tElevation = regl.texture({
       data: image,
@@ -125,14 +134,17 @@ class HillshadeImageryProvider extends MapboxImageryProvider {
     cmdNormal();
 
     const cmdDirect = regl({
+      // The vertex shader tells the GPU where to draw the vertices.
       vert: `
         precision highp float;
         attribute vec2 position;
+        uniform vec2 scale;
 
         void main() {
-          gl_Position = vec4(position, 0, 1);
+          gl_Position = vec4(scale*position, 0, 1);
         }
       `,
+      // The fragment shader tells the GPU what color to draw.
       frag: `
         precision highp float;
 
@@ -154,6 +166,7 @@ class HillshadeImageryProvider extends MapboxImageryProvider {
       uniforms: {
         tNormal: fboNormal,
         tElevation: fboElevation,
+        scale: [1, 1],
         resolution: [image.width, image.height],
         sunDirection: vec3.normalize([], [1, 1, 0.5]),
       },
@@ -166,9 +179,10 @@ class HillshadeImageryProvider extends MapboxImageryProvider {
     return canvas;
   }
   requestImage(x, y, z, request) {
-    const res = super.requestImage(x, y, z, request);
+    const res = this.terrainProvider.backend.requestImage(x, y, z, request);
+    if (res == null) return undefined;
     const rect = this.tilingScheme.tileXYToRectangle(x, y, z);
-    return res?.then((d) => this.processImage(d, rect));
+    return res.then((d) => this.processImage(d, rect));
   }
 }
 
@@ -180,6 +194,7 @@ const HillshadeLayer = (props) => {
       mapId: "mapbox.terrain-rgb",
       maximumLevel: 14,
       accessToken: process.env.MAPBOX_API_TOKEN,
+      format: "@2x.webp",
     })
   );
 

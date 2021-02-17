@@ -29,6 +29,16 @@ const GlobeSettings = (props) => {
         },
       })
     ),
+    h(
+      FormGroup,
+      { label: "Show inspector" },
+      h(Switch, {
+        value: state.showInspector,
+        onChange(value) {
+          dispatch({ type: "set-show-inspector", value });
+        },
+      })
+    ),
   ]);
 };
 
