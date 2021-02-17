@@ -1,2 +1,2 @@
-export * from './hillshade'
-export * from './provider'
+export * from "./hillshade";
+export * from "./provider";
