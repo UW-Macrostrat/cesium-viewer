@@ -3,7 +3,7 @@
 /*global require*/
 
 import defined from "cesiumSource/Core/defined";
-import VectorTile from "@mapbox/vector-tile"
+import VectorTile from "@mapbox/vector-tile";
 var Protobuf = require("pbf");
 var Point = require("@mapbox/point-geometry");
 import defaultValue from "cesiumSource/Core/defaultValue";
@@ -18,11 +18,10 @@ import {
   Cartesian2,
   Cartographic,
   DeveloperError,
-  Resource
-} from "cesium"
+  Resource,
+} from "cesium";
 
 var POLYGON_FEATURE = 3; // feature.type == 3 for polygon features
-
 
 /**
  * Determine the winding order of a polygon ring.
@@ -46,25 +45,27 @@ function computeRingWindingOrder(ring) {
     : WindingOrder.CLOCKWISE;
 }
 
-
 function loadArrayBuffer(urlOrResource) {
   var resource = Resource.createIfNeeded(urlOrResource);
   return resource.fetchArrayBuffer();
 }
 
-
-var MapboxVectorTileImageryProvider = function(options) {
+var MapboxVectorTileImageryProvider = function (options) {
   this._uriTemplate = new URITemplate(options.url);
 
   if (typeof options.layerName !== "string") {
-    throw new DeveloperError("map.mapboxVectorTileImageryProvider.requireLayerName");
+    throw new DeveloperError(
+      "map.mapboxVectorTileImageryProvider.requireLayerName"
+    );
   }
   this._layerName = options.layerName;
 
   this._subdomains = defaultValue(options.subdomains, []);
 
   if (!(options.styleFunc instanceof Function)) {
-    throw new DeveloperError("map.mapboxVectorTileImageryProvider.requireStyles");
+    throw new DeveloperError(
+      "map.mapboxVectorTileImageryProvider.requireStyles"
+    );
   }
   this._styleFunc = options.styleFunc;
 
@@ -101,7 +102,9 @@ var MapboxVectorTileImageryProvider = function(options) {
   var tileCount =
     (Math.abs(neTile.x - swTile.x) + 1) * (Math.abs(neTile.y - swTile.y) + 1);
   if (tileCount > 4) {
-    throw new DeveloperError("map.mapboxVectorTileImageryProvider.moreThanFourTiles");
+    throw new DeveloperError(
+      "map.mapboxVectorTileImageryProvider.moreThanFourTiles"
+    );
   }
 
   this._errorEvent = new CesiumEvent();
@@ -111,67 +114,67 @@ var MapboxVectorTileImageryProvider = function(options) {
 
 Object.defineProperties(MapboxVectorTileImageryProvider.prototype, {
   url: {
-    get: function() {
+    get: function () {
       return this._uriTemplate.expression;
-    }
+    },
   },
 
   tileWidth: {
-    get: function() {
+    get: function () {
       return this._tileWidth;
-    }
+    },
   },
 
   tileHeight: {
-    get: function() {
+    get: function () {
       return this._tileHeight;
-    }
+    },
   },
 
   maximumLevel: {
-    get: function() {
+    get: function () {
       return this._maximumLevel;
-    }
+    },
   },
 
   minimumLevel: {
-    get: function() {
+    get: function () {
       return this._minimumLevel;
-    }
+    },
   },
 
   tilingScheme: {
-    get: function() {
+    get: function () {
       return this._tilingScheme;
-    }
+    },
   },
 
   rectangle: {
-    get: function() {
+    get: function () {
       return this._rectangle;
-    }
+    },
   },
 
   errorEvent: {
-    get: function() {
+    get: function () {
       return this._errorEvent;
-    }
+    },
   },
 
   ready: {
-    get: function() {
+    get: function () {
       return this._ready;
-    }
+    },
   },
 
   hasAlphaChannel: {
-    get: function() {
+    get: function () {
       return true;
-    }
-  }
+    },
+  },
 });
 
-MapboxVectorTileImageryProvider.prototype._getSubdomain = function(
+MapboxVectorTileImageryProvider.prototype._getSubdomain = function (
   x,
   y,
   level
@@ -184,7 +187,7 @@ MapboxVectorTileImageryProvider.prototype._getSubdomain = function(
   }
 };
 
-MapboxVectorTileImageryProvider.prototype._buildImageUrl = function(
+MapboxVectorTileImageryProvider.prototype._buildImageUrl = function (
   x,
   y,
   level
@@ -193,18 +196,22 @@ MapboxVectorTileImageryProvider.prototype._buildImageUrl = function(
     z: level,
     x: x,
     y: y,
-    s: this._getSubdomain(x, y, level)
+    s: this._getSubdomain(x, y, level),
   });
 };
 
-MapboxVectorTileImageryProvider.prototype.requestImage = function(x, y, level) {
+MapboxVectorTileImageryProvider.prototype.requestImage = function (
+  x,
+  y,
+  level
+) {
   var canvas = document.createElement("canvas");
   canvas.width = this._tileWidth;
   canvas.height = this._tileHeight;
   return this._requestImage(x, y, level, canvas);
 };
 
-MapboxVectorTileImageryProvider.prototype._requestImage = function(
+MapboxVectorTileImageryProvider.prototype._requestImage = function (
   x,
   y,
   level,
@@ -213,7 +220,7 @@ MapboxVectorTileImageryProvider.prototype._requestImage = function(
   var requestedTile = {
     x: x,
     y: y,
-    level: level
+    level: level,
   };
   var nativeTile; // The level, x & y of the tile used to draw the requestedTile
   // Check whether to use a native tile or overzoom the largest native tile
@@ -223,7 +230,7 @@ MapboxVectorTileImageryProvider.prototype._requestImage = function(
     nativeTile = {
       x: x >> levelDelta,
       y: y >> levelDelta,
-      level: this._maximumNativeLevel
+      level: this._maximumNativeLevel,
     };
   } else {
     nativeTile = requestedTile;
@@ -232,7 +239,7 @@ MapboxVectorTileImageryProvider.prototype._requestImage = function(
   var that = this;
   var url = this._buildImageUrl(nativeTile.x, nativeTile.y, nativeTile.level);
 
-  return loadArrayBuffer(url).then(function(data) {
+  return loadArrayBuffer(url).then(function (data) {
     return that._drawTile(
       requestedTile,
       nativeTile,
@@ -263,7 +270,7 @@ function overzoomGeometry(rings, nativeTile, newExtent, newTile) {
   }
 }
 
-MapboxVectorTileImageryProvider.prototype._drawTile = function(
+MapboxVectorTileImageryProvider.prototype._drawTile = function (
   requestedTile,
   nativeTile,
   tile,
@@ -307,7 +314,9 @@ MapboxVectorTileImageryProvider.prototype._drawTile = function(
         var size = layer.extent >> levelDelta;
         if (size < 16) {
           // Tile has less less detail than 16x16
-          throw new DeveloperError("map.mapboxVectorTileImageryProvider.maxLevelError");
+          throw new DeveloperError(
+            "map.mapboxVectorTileImageryProvider.maxLevelError"
+          );
         }
         var x1 = size * (requestedTile.x - (nativeTile.x << levelDelta)); //
         var y1 = size * (requestedTile.y - (nativeTile.y << levelDelta));
@@ -413,7 +422,7 @@ function isFeatureClicked(rings, point) {
   return false;
 }
 
-MapboxVectorTileImageryProvider.prototype.pickFeatures = function(
+MapboxVectorTileImageryProvider.prototype.pickFeatures = function (
   x,
   y,
   level,
@@ -425,7 +434,7 @@ MapboxVectorTileImageryProvider.prototype.pickFeatures = function(
   var requestedTile = {
     x: x,
     y: y,
-    level: level
+    level: level,
   };
   // Check whether to use a native tile or overzoom the largest native tile
   if (level > this._maximumNativeLevel) {
@@ -434,20 +443,20 @@ MapboxVectorTileImageryProvider.prototype.pickFeatures = function(
     nativeTile = {
       x: x >> levelDelta,
       y: y >> levelDelta,
-      level: this._maximumNativeLevel
+      level: this._maximumNativeLevel,
     };
   } else {
     nativeTile = {
       x: x,
       y: y,
-      level: level
+      level: level,
     };
   }
 
   var that = this;
   var url = this._buildImageUrl(nativeTile.x, nativeTile.y, nativeTile.level);
 
-  return loadArrayBuffer(url).then(function(data) {
+  return loadArrayBuffer(url).then(function (data) {
     var layer = new VectorTile(new Protobuf(data)).layers[that._layerName];
 
     if (!defined(layer)) {
@@ -460,7 +469,7 @@ MapboxVectorTileImageryProvider.prototype.pickFeatures = function(
     var x_range = [boundRect.west, boundRect.east];
     var y_range = [boundRect.north, boundRect.south];
 
-    var map = function(pos, in_x_range, in_y_range, out_x_range, out_y_range) {
+    var map = function (pos, in_x_range, in_y_range, out_x_range, out_y_range) {
       var offset = new Cartesian2();
       Cartesian2.subtract(
         pos,
@@ -512,11 +521,11 @@ MapboxVectorTileImageryProvider.prototype.pickFeatures = function(
   });
 };
 
-MapboxVectorTileImageryProvider.prototype.createHighlightImageryProvider = function(
+MapboxVectorTileImageryProvider.prototype.createHighlightImageryProvider = function (
   regionUniqueID
 ) {
   var that = this;
-  var styleFunc = function(FID) {
+  var styleFunc = function (FID) {
     if (regionUniqueID === FID) {
       // No fill, but same style border as the regions, just thicker
       var regionStyling = that._styleFunc(FID);
@@ -540,9 +549,9 @@ MapboxVectorTileImageryProvider.prototype.createHighlightImageryProvider = funct
     maximumNativeZoom: this._maximumNativeLevel,
     maximumZoom: this._maximumLevel,
     uniqueIdProp: this._uniqueIdProp,
-    styleFunc: styleFunc
+    styleFunc: styleFunc,
   });
-  imageryProvider.pickFeatures = function() {
+  imageryProvider.pickFeatures = function () {
     return undefined;
   }; // Turn off feature picking
   return imageryProvider;
