@@ -1,4 +1,4 @@
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import * as Cesium from "cesiumSource/Cesium";
 import h from "@macrostrat/hyper";
 import {
@@ -9,7 +9,6 @@ import {
   CameraFlyTo,
   Camera,
 } from "resium";
-import { queryMap, mapMoved } from "../../actions";
 
 const rangeAtZoom18 = 250; // ~ 250 m away
 
@@ -22,8 +21,7 @@ const zoomForDistance = (distance: number) => {
   return 18 - Math.log2(distance / rangeAtZoom18);
 };
 
-const MapClickHandler = () => {
-  const dispatchAction = useDispatch();
+const MapClickHandler = ({ onClick }) => {
   const { viewer } = useCesium();
 
   const clickPoint = (movement) => {
@@ -36,7 +34,8 @@ const MapClickHandler = () => {
     const latitude = Cesium.Math.toDegrees(cartographic.latitude);
     //console.log(longitude, latitude);
     //addPoint(longitude, latitude)
-    dispatchAction(queryMap(longitude, latitude, 7, null));
+    const zoom = 7; // we pin this to 7 for now
+    onClick({ latitude, longitude, zoom });
   };
 
   return h(ScreenSpaceEventHandler, [
@@ -111,13 +110,12 @@ const getMapCenter = (viewer: Cesium.Viewer) => {
   return { x, y, z };
 };
 
-const MapChangeTracker = (props) => {
+const MapChangeTracker = (props: { onChange(cpos: any): void }) => {
   const { viewer } = useCesium();
-  const dispatch = useDispatch();
   const onChange = () => {
     let cpos = getMapCenter(viewer);
     if (cpos == null) return;
-    dispatch(mapMoved(cpos));
+    props.onChange(cpos);
   };
   return h(Camera, { onChange, onMoveEnd: onChange });
 };
