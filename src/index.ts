@@ -13,22 +13,23 @@ import {
   FlyToInitialPosition,
 } from "./position";
 import { Fog, Globe, Scene } from "resium";
-import { useSelector } from "react-redux";
 import { terrainProvider } from "./layers";
 
 const CesiumView = (props) => {
-  const exaggeration =
-    useSelector((state) => state.globe.verticalExaggeration) ?? 1.0;
-  const displayQuality = useSelector((state) => state.globe.displayQuality);
-
-  const showInspector = useSelector((state) => state.globe.showInspector);
+  const {
+    terrainExaggeration,
+    showInspector,
+    displayQuality,
+    onClick,
+    onViewChange,
+  } = props;
 
   return h(
     GlobeViewer,
     {
       terrainProvider,
       // not sure why we have to do this...
-      terrainExaggeration: exaggeration,
+      terrainExaggeration,
       highResolution: displayQuality == DisplayQuality.High,
       skyBox: false,
       showInspector,
@@ -48,11 +49,11 @@ const CesiumView = (props) => {
         null
       ),
       h(Scene, { requestRenderMode: true }),
-      h(MapChangeTracker),
+      h.if(onViewChange != null)(MapChangeTracker, { onChange: onViewChange }),
       h(SatelliteLayer),
       h(HillshadeLayer),
       h(GeologyLayer, { alpha: 0.5 }),
-      h(MapClickHandler),
+      h.if(onClick != null)(MapClickHandler, { onClick }),
       h(SelectedPoint),
       h(FlyToInitialPosition),
       h(Fog, { density: 1e-4 }),
