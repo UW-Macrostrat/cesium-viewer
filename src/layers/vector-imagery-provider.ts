@@ -3,7 +3,7 @@
 /*global require*/
 
 import defined from "cesiumSource/Core/defined";
-import VectorTile from "@mapbox/vector-tile";
+import { VectorTile } from "@mapbox/vector-tile";
 var Protobuf = require("pbf");
 var Point = require("@mapbox/point-geometry");
 import defaultValue from "cesiumSource/Core/defaultValue";
@@ -240,12 +240,15 @@ MapboxVectorTileImageryProvider.prototype._requestImage = function (
   var url = this._buildImageUrl(nativeTile.x, nativeTile.y, nativeTile.level);
 
   return loadArrayBuffer(url).then(function (data) {
-    return that._drawTile(
-      requestedTile,
-      nativeTile,
-      new VectorTile(new Protobuf(data)),
-      canvas
-    );
+    console.log(data);
+    try {
+      const buf = new Protobuf(data);
+      const tile = new VectorTile(buf);
+      console.log(tile);
+      return that._drawTile(requestedTile, nativeTile, tile, canvas);
+    } catch (err) {
+      console.log(err);
+    }
   });
 };
 
@@ -276,6 +279,7 @@ MapboxVectorTileImageryProvider.prototype._drawTile = function (
   tile,
   canvas
 ) {
+  console.log(tile);
   var layer = tile.layers[this._layerName];
   if (!defined(layer)) {
     return canvas; // return blank canvas for blank tile
@@ -557,4 +561,4 @@ MapboxVectorTileImageryProvider.prototype.createHighlightImageryProvider = funct
   return imageryProvider;
 };
 
-module.exports = MapboxVectorTileImageryProvider;
+export { MapboxVectorTileImageryProvider };

@@ -144,7 +144,6 @@ const reducer = (state: GlobeState = initialState, action: GlobeAction) => {
         const value = flyToParams(camera, camera.extra);
         newState = reducer(state, { type: "fly-to", value });
       }
-      console.log(newState);
       return newState;
     }
     case "fly-to-named-location":
