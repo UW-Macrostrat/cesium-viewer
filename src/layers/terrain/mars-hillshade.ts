@@ -193,7 +193,7 @@ const MarsHillshadeLayer = (props) => {
       credit: null,
       url:
         process.env.API_BASE_URL +
-        "/terrain/{TileMatrix}/{TileCol}/{TileRow}.png",
+        "/tiles/terrain/{TileMatrix}/{TileCol}/{TileRow}.png",
     })
   );
 
