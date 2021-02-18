@@ -240,15 +240,9 @@ MapboxVectorTileImageryProvider.prototype._requestImage = function (
   var url = this._buildImageUrl(nativeTile.x, nativeTile.y, nativeTile.level);
 
   return loadArrayBuffer(url).then(function (data) {
-    console.log(data);
-    try {
-      const buf = new Protobuf(data);
-      const tile = new VectorTile(buf);
-      console.log(tile);
-      return that._drawTile(requestedTile, nativeTile, tile, canvas);
-    } catch (err) {
-      console.log(err);
-    }
+    const buf = new Protobuf(data);
+    const tile = new VectorTile(buf);
+    return that._drawTile(requestedTile, nativeTile, tile, canvas);
   });
 };
 
@@ -279,7 +273,6 @@ MapboxVectorTileImageryProvider.prototype._drawTile = function (
   tile,
   canvas
 ) {
-  console.log(tile);
   var layer = tile.layers[this._layerName];
   if (!defined(layer)) {
     return canvas; // return blank canvas for blank tile
@@ -297,7 +290,10 @@ MapboxVectorTileImageryProvider.prototype._drawTile = function (
   for (var i = 0; i < layer.length; i++) {
     var feature = layer.feature(i);
     if (feature.type === POLYGON_FEATURE) {
-      var style = this._styleFunc(feature.properties[this._uniqueIdProp]);
+      var style = this._styleFunc(
+        feature.properties[this._uniqueIdProp],
+        feature.properties
+      );
       if (!style) continue;
       context.fillStyle = style.fillStyle;
       context.strokeStyle = style.strokeStyle;
