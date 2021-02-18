@@ -171,6 +171,7 @@ const reducer = (state: GlobeState = initialState, action: GlobeAction) => {
 export {
   reducer,
   GlobeAction,
+  GlobeState,
   DisplayQuality,
   ActiveMapLayer,
   createInitialState,
