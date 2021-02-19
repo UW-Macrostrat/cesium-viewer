@@ -1,4 +1,5 @@
 import { useSelector, useDispatch } from "react-redux";
+import { useCallback } from "react";
 import * as Cesium from "cesiumSource/Cesium";
 import h from "@macrostrat/hyper";
 import {
@@ -58,6 +59,9 @@ const MapClickHandler = ({ onClick }) => {
     //addPoint(longitude, latitude)
     const zoom = 7; // we pin this to 7 for now
     onClick({ latitude, longitude, zoom });
+
+    // We need to request a render in case we change something
+    viewer.scene.requestRender();
   };
 
   return h(ScreenSpaceEventHandler, [
@@ -68,19 +72,16 @@ const MapClickHandler = ({ onClick }) => {
   ]);
 };
 
-const SelectedPoint = (props) => {
-  const mapOpts = useSelector((s) => s.update);
-  if (mapOpts == null) return null;
-  const { infoMarkerLng, infoMarkerLat } = mapOpts;
-  // TODO: fix weird null signifier
-  if (infoMarkerLng == -999 || infoMarkerLat == -999) return null;
+type GeographicLocation = {
+  latitude: number;
+  longitude: number;
+};
 
-  let position = Cesium.Cartesian3.fromDegrees(
-    // TODO: Numbers should be guaranteed in typescript
-    parseFloat(infoMarkerLng),
-    parseFloat(infoMarkerLat)
-    // need to also get height
-  );
+const SelectedPoint = (props: { point: GeographicLocation | null }) => {
+  if (props.point == null) return null;
+  const { latitude, longitude } = props.point;
+
+  let position = Cesium.Cartesian3.fromDegrees(longitude, latitude);
   let pointGraphics = {
     color: Cesium.Color.DODGERBLUE,
     outlineColor: Cesium.Color.WHITE,
@@ -109,7 +110,10 @@ const getMapCenter = (viewer: Cesium.Viewer): Position => {
   );
   const pickRay = viewer.camera.getPickRay(centerPx);
   const pickPosition = viewer.scene.globe.pick(pickRay, viewer.scene);
-  if (pickPosition == null) return;
+  if (pickPosition == null) {
+    console.log("Could not get pick position");
+    return;
+  }
   const cpos = Cesium.Cartographic.fromCartesian(pickPosition);
   const x = Cesium.Math.toDegrees(cpos.longitude);
   const y = Cesium.Math.toDegrees(cpos.latitude);
@@ -161,11 +165,12 @@ function flyToParams(pos: CameraParams, rest: any = {}) {
 const MapChangeTracker = (props) => {
   const { viewer } = useCesium();
   const dispatch = useDispatch();
-  const onChange = () => {
+  const onMoveEnd = () => {
     let params = getPosition(viewer);
     dispatch({ type: "set-camera-position", value: params });
   };
-  return h(Camera, { onChange, onMoveEnd: onChange });
+  // should also use onChange...
+  return h(Camera, { onMoveEnd });
 };
 
 // We should be able to specify a unique viewpoint using 5 parameters as follows
@@ -192,4 +197,5 @@ export {
   ViewInfo,
   flyToParams,
   MARS_RADIUS_SCALAR,
+  GeographicLocation,
 };

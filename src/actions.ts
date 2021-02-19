@@ -44,6 +44,10 @@ type QueryGlobe = {
   };
 };
 
+type CancelQuery = {
+  type: "cancel-query";
+};
+
 type SetDisplayQuality = {
   type: "set-display-quality";
   value: DisplayQuality;

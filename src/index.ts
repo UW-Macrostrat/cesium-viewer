@@ -54,7 +54,6 @@ const CesiumView = (props) => {
       h(MapChangeTracker),
       children,
       h.if(onClick != null)(MapClickHandler, { onClick }),
-      //h(SelectedPoint),
       //h(FlyToInitialPosition),
       h(CameraPositioner),
       h(Fog, { density: 1e-6 }),

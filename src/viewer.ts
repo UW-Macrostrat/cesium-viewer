@@ -76,6 +76,7 @@ const GlobeViewer = (props: GlobeViewerProps) => {
     vrButton: false,
     geocoder: false,
     resolutionScale: false,
+    selectionIndicator: false,
     //skyAtmosphere: true,
     animation: false,
     timeline: false,
