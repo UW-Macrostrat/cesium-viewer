@@ -44,7 +44,7 @@ const zoomForDistance = (distance: number) => {
   return 18 - Math.log2(distance / rangeAtZoom18);
 };
 
-const MapClickHandler = ({ onClick, pickFeatures = true }) => {
+const MapClickHandler = ({ onClick, pickFeatures = false }) => {
   const { viewer } = useCesium();
   const dispatch = useDispatch();
 
