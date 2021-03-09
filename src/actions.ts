@@ -80,7 +80,13 @@ type SetShowInspector = {
   value: boolean;
 };
 
+type PickFeatures = {
+  type: "pick-features";
+  features: any;
+};
+
 type GlobeAction =
+  | PickFeatures
   | SetExaggeration
   | SetDisplayQuality
   | SetCameraPosition

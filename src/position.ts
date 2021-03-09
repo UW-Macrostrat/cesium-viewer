@@ -44,12 +44,19 @@ const zoomForDistance = (distance: number) => {
   return 18 - Math.log2(distance / rangeAtZoom18);
 };
 
-const MapClickHandler = ({ onClick }) => {
+const MapClickHandler = ({ onClick, pickFeatures = true }) => {
   const { viewer } = useCesium();
+  const dispatch = useDispatch();
 
   const clickPoint = (movement) => {
     const ray = viewer.camera.getPickRay(movement.position);
     var cartesian = viewer.scene.globe.pick(ray, viewer.scene);
+
+    if (pickFeatures) {
+      viewer.scene.imageryLayers
+        ?.pickImageryLayerFeatures(ray, viewer.scene)
+        ?.then((features) => dispatch({ type: "pick-features", features }));
+    }
     //var cartesian = viewer.scene.pickPosition(movement.position);
 
     var cartographic = Cesium.Cartographic.fromCartesian(cartesian);
