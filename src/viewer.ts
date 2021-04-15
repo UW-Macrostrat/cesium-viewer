@@ -26,18 +26,21 @@ const GlobeViewer = (props: GlobeViewerProps) => {
   useEffect(() => {
     const { cesiumElement } = ref.current ?? {};
     if (cesiumElement == null) return;
-
-    ref.current.cesiumElement.resolutionScale = resolutionScale;
-
+    try {
+      cesiumElement.scene;
+    } catch {
+      return;
+    }
+    cesiumElement.resolutionScale = resolutionScale;
     // Enable anti-aliasing
-    ref.current.cesiumElement.scene.postProcessStages.fxaa.enabled = true;
+    cesiumElement.scene.postProcessStages.fxaa.enabled = true;
   }, [resolutionScale]);
 
   useEffect(() => {
     const { cesiumElement } = ref.current ?? {};
     if (cesiumElement == null) return;
 
-    ref.current.cesiumElement.extend(NavigationMixin, {
+    cesiumElement.extend(NavigationMixin, {
       distanceLabelFormatter: (convertedDistance, units: Units): string => {
         // Convert for Mars (very janky)
         let u = "";
