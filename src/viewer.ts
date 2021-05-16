@@ -1,9 +1,14 @@
 import { useEffect, useRef, ComponentProps } from "react";
 import h from "@macrostrat/hyper";
 import { Viewer, CesiumComponentRef } from "resium";
-import NavigationMixin from "@znemz/cesium-navigation";
+import NavigationMixin, { Units } from "@znemz/cesium-navigation";
 import "@znemz/cesium-navigation/dist/index.css";
 import { viewerCesiumInspectorMixin } from "cesiumSource/Cesium";
+
+import { format } from "d3-format";
+const Cesium: any = require("cesiumSource/Cesium");
+
+const fmt = format(".0f");
 
 type GlobeViewerProps = ComponentProps<typeof Viewer> & {
   highResolution: boolean;
@@ -31,7 +36,20 @@ const GlobeViewer = (props: GlobeViewerProps) => {
   useEffect(() => {
     const { cesiumElement } = ref.current ?? {};
     if (cesiumElement == null) return;
-    ref.current.cesiumElement.extend(NavigationMixin, {});
+
+    ref.current.cesiumElement.extend(NavigationMixin, {
+      distanceLabelFormatter: (convertedDistance, units: Units): string => {
+        // Convert for Mars (very janky)
+        let u = "";
+        if (units == "meters") u = "m";
+        if (units == "kilometers") u = "km";
+        if (u == "km" && convertedDistance * 0.5 < 0.5) {
+          return fmt(convertedDistance * 500) + " m";
+        }
+        return fmt(convertedDistance * 0.5) + " " + u;
+      },
+    });
+    //ref.current.cesiumElement.extend(Cesium.viewerCesiumInspectorMixin)
   }, []);
 
   useEffect(() => {
@@ -46,14 +64,19 @@ const GlobeViewer = (props: GlobeViewerProps) => {
     full: true,
     baseLayerPicker: false,
     fullscreenButton: false,
+    mapProjection: new Cesium.GeographicProjection(
+      Cesium.Ellipsoid.MARSIAU2000
+    ),
+    globe: new Cesium.Globe(Cesium.Ellipsoid.MARSIAU2000),
     homeButton: false,
     infoBox: false,
     navigationInstructionsInitiallyVisible: false,
-    navigationHelpButton: false,
+    navigationHelpButton: true,
     scene3DOnly: true,
     vrButton: false,
     geocoder: false,
-    //resolutionScale,
+    resolutionScale: false,
+    selectionIndicator: false,
     //skyAtmosphere: true,
     animation: false,
     timeline: false,

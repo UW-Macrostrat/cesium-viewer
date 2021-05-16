@@ -56,3 +56,4 @@ const SatelliteLayer = (props) => {
 
 export { GeologyLayer, SatelliteLayer };
 export * from "./terrain";
+export * from "./vector-imagery-provider";

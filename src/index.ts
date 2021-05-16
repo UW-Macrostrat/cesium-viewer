@@ -4,12 +4,12 @@ import { hyperStyled } from "@macrostrat/hyper";
 import styles from "./main.styl";
 const h = hyperStyled(styles);
 import { GlobeViewer } from "./viewer";
-import { GeologyLayer, SatelliteLayer, HillshadeLayer } from "./layers";
 import { DisplayQuality } from "./actions";
 import {
   MapClickHandler,
   SelectedPoint,
   MapChangeTracker,
+  CameraPositioner,
   FlyToInitialPosition,
 } from "./position";
 import { Fog, Globe, Scene } from "resium";
@@ -17,7 +17,9 @@ import { terrainProvider } from "./layers";
 
 const CesiumView = (props) => {
   const {
-    terrainExaggeration,
+    terrainExaggeration = 1.0,
+    terrainProvider,
+    children,
     showInspector,
     displayQuality = DisplayQuality.High,
     onClick,
@@ -43,22 +45,21 @@ const CesiumView = (props) => {
           enableLighting: false,
           showGroundAtmosphere: true,
           maximumScreenSpaceError:
-            displayQuality == DisplayQuality.High ? 2 : 3,
+            displayQuality == DisplayQuality.High ? 1.5 : 2,
           //shadowMode: Cesium.ShadowMode.ENABLED
         },
         null
       ),
       h(Scene, { requestRenderMode: true }),
-      h.if(onViewChange != null)(MapChangeTracker, { onChange: onViewChange }),
-      h(SatelliteLayer),
-      h(HillshadeLayer),
-      h(GeologyLayer, { alpha: 0.5 }),
+      h(MapChangeTracker),
+      children,
       h.if(onClick != null)(MapClickHandler, { onClick }),
-      h(SelectedPoint),
-      h(FlyToInitialPosition),
-      h(Fog, { density: 1e-4 }),
+      //h(FlyToInitialPosition),
+      h(CameraPositioner),
+      h(Fog, { density: 1e-6 }),
     ]
   );
 };
 
+export { DisplayQuality };
 export default CesiumView;
