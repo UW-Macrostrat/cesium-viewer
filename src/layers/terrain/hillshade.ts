@@ -178,8 +178,9 @@ class HillshadeImageryProvider extends MapboxImageryProvider {
 
     return canvas;
   }
+
   requestImage(x, y, z, request) {
-    const res = this.terrainProvider.backend.requestImage(x, y, z, request);
+    const res = super.requestImage(x, y, z, request);
     if (res == null) return undefined;
     const rect = this.tilingScheme.tileXYToRectangle(x, y, z);
     return res.then((d) => this.processImage(d, rect));
