@@ -10,24 +10,31 @@ import { terrainProvider } from "./provider";
 
 type Img = HTMLImageElement | HTMLCanvasElement;
 
+interface CanvasContext {
+  canvas: HTMLCanvasElement;
+  context: CanvasRenderingContext2D;
+  regl: REGL.Regl;
+}
+
+const canvas = document.createElement("canvas");
+canvas.width = 512;
+canvas.height = 512;
+
 class HillshadeImageryProvider extends MapboxImageryProvider {
   // Fib about tile size in order to download fewer elevation tiles
   tileWidth = 512;
   tileHeight = 512;
   terrainProvider = terrainProvider;
 
-  processImage(image: Img, rect: Cesium.Rectangle): Img {
-    const canvas = document.createElement("canvas");
-    canvas.width = image.width;
-    canvas.height = image.height;
+  async processImage(image: Img, rect: Cesium.Rectangle): Promise<Img> {
     const regl = REGL({
       canvas,
-      extensions: ["OES_texture_float", "WEBGL_color_buffer_float"],
+      extensions: ["OES_texture_float", "WEBGL_color_buffer_float"]
     });
 
     const tElevation = regl.texture({
       data: image,
-      flipY: true,
+      flipY: true
     });
 
     const angle = rect.east - rect.west;
@@ -37,7 +44,7 @@ class HillshadeImageryProvider extends MapboxImageryProvider {
     const fboElevation = regl.framebuffer({
       width: image.width,
       height: image.height,
-      colorType: "float",
+      colorType: "float"
     });
 
     const cmdProcessElevation = regl({
@@ -68,24 +75,24 @@ class HillshadeImageryProvider extends MapboxImageryProvider {
         }
       `,
       attributes: {
-        position: [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1],
+        position: [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1]
       },
       uniforms: {
         tElevation: tElevation,
         elevationScale: 1.0,
-        resolution: [image.width, image.height],
+        resolution: [image.width, image.height]
       },
       viewport: { x: 0, y: 0, width: image.width, height: image.height },
       count: 6,
-      framebuffer: fboElevation,
+      framebuffer: fboElevation //regl.prop("elevation")
     });
 
-    cmdProcessElevation();
+    cmdProcessElevation(); //{ elevation: fboElevation });
 
     const fboNormal = regl.framebuffer({
       width: image.width,
       height: image.height,
-      colorType: "float",
+      colorType: "float"
     });
 
     const cmdNormal = regl({
@@ -119,16 +126,16 @@ class HillshadeImageryProvider extends MapboxImageryProvider {
         }
       `,
       attributes: {
-        position: [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1],
+        position: [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1]
       },
       uniforms: {
         tElevation: fboElevation,
         pixelScale: pixelScale,
-        resolution: [image.width, image.height],
+        resolution: [image.width, image.height]
       },
       viewport: { x: 0, y: 0, width: image.width, height: image.height },
       count: 6,
-      framebuffer: fboNormal,
+      framebuffer: fboNormal
     });
 
     cmdNormal();
@@ -161,41 +168,54 @@ class HillshadeImageryProvider extends MapboxImageryProvider {
         }
       `,
       attributes: {
-        position: [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1],
+        position: [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1]
       },
       uniforms: {
         tNormal: fboNormal,
         tElevation: fboElevation,
         scale: [1, 1],
         resolution: [image.width, image.height],
-        sunDirection: vec3.normalize([], [1, 1, 0.5]),
+        sunDirection: vec3.normalize([], [1, 1, 0.5])
       },
       viewport: { x: 0, y: 0, width: image.width, height: image.height },
-      count: 6,
+      count: 6
     });
 
     cmdDirect();
 
-    return canvas;
+    const dataUrl = canvas.toDataURL();
+    const img = document.createElement("img");
+    //regl.destroy();
+
+    //canvas = null;
+
+    console.log("Created image");
+
+    return new Promise(resolve => {
+      img.onload = function() {
+        resolve(img);
+      };
+      img.src = dataUrl;
+    });
   }
 
-  requestImage(x, y, z, request) {
-    const res = super.requestImage(x, y, z, request);
+  async requestImage(x, y, z, request) {
+    const res = await super.requestImage(x, y, z, request);
     if (res == null) return undefined;
     const rect = this.tilingScheme.tileXYToRectangle(x, y, z);
-    return res.then((d) => this.processImage(d, rect));
+    return await this.processImage(res, rect);
   }
 }
 
-const HillshadeLayer = (props) => {
-  const hasSatellite = useSelector((state) => state.update.mapHasSatellite);
+const HillshadeLayer = props => {
+  const hasSatellite = useSelector(state => state.update.mapHasSatellite);
 
   let hillshade = useRef(
     new HillshadeImageryProvider({
       mapId: "mapbox.terrain-rgb",
       maximumLevel: 14,
       accessToken: process.env.MAPBOX_API_TOKEN,
-      format: "@2x.webp",
+      format: "@2x.webp"
     })
   );
 
