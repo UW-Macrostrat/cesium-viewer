@@ -4,7 +4,8 @@ const terrainProvider = new MapboxTerrainProvider({
   // @ts-ignore
   accessToken: process.env.MAPBOX_API_TOKEN,
   //format: 'webp',
-  highResolution: true
+  highResolution: true,
+  detailScalar: 2
 });
 
 export { terrainProvider };

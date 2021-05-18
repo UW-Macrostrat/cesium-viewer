@@ -8,7 +8,7 @@ import {
   useCesium,
   Entity,
   CameraFlyTo,
-  Camera,
+  Camera
 } from "resium";
 // import {
 //   queryMap,
@@ -48,14 +48,14 @@ const MapClickHandler = ({ onClick, pickFeatures = false }) => {
   const { viewer } = useCesium();
   const dispatch = useDispatch();
 
-  const clickPoint = (movement) => {
+  const clickPoint = movement => {
     const ray = viewer.camera.getPickRay(movement.position);
     var cartesian = viewer.scene.globe.pick(ray, viewer.scene);
 
     if (pickFeatures) {
       viewer.scene.imageryLayers
         ?.pickImageryLayerFeatures(ray, viewer.scene)
-        ?.then((features) => dispatch({ type: "pick-features", features }));
+        ?.then(features => dispatch({ type: "pick-features", features }));
     }
     //var cartesian = viewer.scene.pickPosition(movement.position);
 
@@ -74,8 +74,8 @@ const MapClickHandler = ({ onClick, pickFeatures = false }) => {
   return h(ScreenSpaceEventHandler, [
     h(ScreenSpaceEvent, {
       action: clickPoint,
-      type: Cesium.ScreenSpaceEventType.LEFT_CLICK,
-    }),
+      type: Cesium.ScreenSpaceEventType.LEFT_CLICK
+    })
   ]);
 };
 
@@ -94,7 +94,7 @@ const SelectedPoint = (props: { point: GeographicLocation | null }) => {
     outlineColor: Cesium.Color.WHITE,
     outlineWidth: 2,
     pixelSize: 10,
-    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
   };
 
   return h(Entity, { position, point: pointGraphics });
@@ -104,8 +104,8 @@ function nadirCameraPosition(x: number, y: number, z: number) {
   return new Cesium.Cartesian3.fromDegrees(x, y, distanceForZoom(z));
 }
 
-const CameraPositioner = (props) => {
-  const vals = useSelector((s) => s.flyToProps);
+const CameraPositioner = props => {
+  const vals = useSelector(s => s.globe.flyToProps);
   if (vals == null) return null;
   return h(CameraFlyTo, { ...props, ...vals });
 };
@@ -140,10 +140,10 @@ const getCameraPosition = (viewer: Cesium.Viewer): CameraParams => {
   return {
     longitude: Cesium.Math.toDegrees(pos.longitude),
     latitude: Cesium.Math.toDegrees(pos.latitude),
-    height: pos.height * MARS_RADIUS_SCALAR,
+    height: pos.height, // * MARS_RADIUS_SCALAR,
     heading: Cesium.Math.toDegrees(camera.heading),
     pitch: Cesium.Math.toDegrees(camera.pitch),
-    roll: Cesium.Math.toDegrees(camera.roll),
+    roll: Cesium.Math.toDegrees(camera.roll)
   };
 };
 
@@ -163,13 +163,13 @@ function flyToParams(pos: CameraParams, rest: any = {}) {
     orientation: {
       heading: Cesium.Math.toRadians(pos.heading),
       pitch: Cesium.Math.toRadians(pos.pitch),
-      roll: Cesium.Math.toRadians(pos.roll),
+      roll: Cesium.Math.toRadians(pos.roll)
     },
-    ...rest,
+    ...rest
   };
 }
 
-const MapChangeTracker = (props) => {
+const MapChangeTracker = props => {
   const { viewer } = useCesium();
   const dispatch = useDispatch();
   const onMoveEnd = () => {
@@ -204,5 +204,5 @@ export {
   ViewInfo,
   flyToParams,
   MARS_RADIUS_SCALAR,
-  GeographicLocation,
+  GeographicLocation
 };

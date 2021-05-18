@@ -16,39 +16,20 @@ interface CanvasContext {
   regl: REGL.Regl;
 }
 
-const canvas = document.createElement("canvas");
-canvas.width = 512;
-canvas.height = 512;
+function createRunner() {
+  const canvas = document.createElement("canvas");
+  canvas.width = 256;
+  canvas.height = 256;
 
-class HillshadeImageryProvider extends MapboxImageryProvider {
-  // Fib about tile size in order to download fewer elevation tiles
-  tileWidth = 512;
-  tileHeight = 512;
-  terrainProvider = terrainProvider;
+  const regl = REGL({
+    canvas,
+    extensions: ["OES_texture_float", "WEBGL_color_buffer_float"]
+  });
 
-  async processImage(image: Img, rect: Cesium.Rectangle): Promise<Img> {
-    const regl = REGL({
-      canvas,
-      extensions: ["OES_texture_float", "WEBGL_color_buffer_float"]
-    });
-
-    const tElevation = regl.texture({
-      data: image,
-      flipY: true
-    });
-
-    const angle = rect.east - rect.west;
-    // rough meters per pixel (could get directly from zoom level)
-    const pixelScale = (6371000 * angle) / image.width;
-
-    const fboElevation = regl.framebuffer({
-      width: image.width,
-      height: image.height,
-      colorType: "float"
-    });
-
-    const cmdProcessElevation = regl({
-      vert: `
+  const resolution = [256, 256];
+  const viewport = { x: 0, y: 0, width: 256, height: 256 };
+  const cmdProcessElevation = regl({
+    vert: `
         precision highp float;
         attribute vec2 position;
 
@@ -56,7 +37,7 @@ class HillshadeImageryProvider extends MapboxImageryProvider {
           gl_Position = vec4(position, 0, 1);
         }
       `,
-      frag: `
+    frag: `
         precision highp float;
 
         uniform sampler2D tElevation;
@@ -74,29 +55,21 @@ class HillshadeImageryProvider extends MapboxImageryProvider {
           gl_FragColor = vec4(vec3(e * elevationScale), 1.0);
         }
       `,
-      attributes: {
-        position: [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1]
-      },
-      uniforms: {
-        tElevation: tElevation,
-        elevationScale: 1.0,
-        resolution: [image.width, image.height]
-      },
-      viewport: { x: 0, y: 0, width: image.width, height: image.height },
-      count: 6,
-      framebuffer: fboElevation //regl.prop("elevation")
-    });
+    attributes: {
+      position: [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1]
+    },
+    uniforms: {
+      tElevation: regl.prop("image"),
+      elevationScale: regl.prop("elevationScale"),
+      resolution
+    },
+    viewport,
+    count: 6,
+    framebuffer: regl.prop("elevation")
+  });
 
-    cmdProcessElevation(); //{ elevation: fboElevation });
-
-    const fboNormal = regl.framebuffer({
-      width: image.width,
-      height: image.height,
-      colorType: "float"
-    });
-
-    const cmdNormal = regl({
-      vert: `
+  const cmdNormal = regl({
+    vert: `
         precision highp float;
         attribute vec2 position;
 
@@ -104,7 +77,7 @@ class HillshadeImageryProvider extends MapboxImageryProvider {
           gl_Position = vec4(position, 0, 1);
         }
       `,
-      frag: `
+    frag: `
         precision highp float;
 
         uniform sampler2D tElevation;
@@ -125,24 +98,22 @@ class HillshadeImageryProvider extends MapboxImageryProvider {
           gl_FragColor = vec4(n, 1.0);
         }
       `,
-      attributes: {
-        position: [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1]
-      },
-      uniforms: {
-        tElevation: fboElevation,
-        pixelScale: pixelScale,
-        resolution: [image.width, image.height]
-      },
-      viewport: { x: 0, y: 0, width: image.width, height: image.height },
-      count: 6,
-      framebuffer: fboNormal
-    });
+    attributes: {
+      position: [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1]
+    },
+    uniforms: {
+      tElevation: regl.prop("elevation"),
+      pixelScale: regl.prop("pixelScale"),
+      resolution
+    },
+    viewport,
+    count: 6,
+    framebuffer: regl.prop("normals")
+  });
 
-    cmdNormal();
-
-    const cmdDirect = regl({
-      // The vertex shader tells the GPU where to draw the vertices.
-      vert: `
+  const cmdDirect = regl({
+    // The vertex shader tells the GPU where to draw the vertices.
+    vert: `
         precision highp float;
         attribute vec2 position;
         uniform vec2 scale;
@@ -151,8 +122,8 @@ class HillshadeImageryProvider extends MapboxImageryProvider {
           gl_Position = vec4(scale*position, 0, 1);
         }
       `,
-      // The fragment shader tells the GPU what color to draw.
-      frag: `
+    // The fragment shader tells the GPU what color to draw.
+    frag: `
         precision highp float;
 
         uniform sampler2D tNormal;
@@ -167,29 +138,60 @@ class HillshadeImageryProvider extends MapboxImageryProvider {
           gl_FragColor = vec4(l, l, l, 1.0);
         }
       `,
-      attributes: {
-        position: [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1]
-      },
-      uniforms: {
-        tNormal: fboNormal,
-        tElevation: fboElevation,
-        scale: [1, 1],
-        resolution: [image.width, image.height],
-        sunDirection: vec3.normalize([], [1, 1, 0.5])
-      },
-      viewport: { x: 0, y: 0, width: image.width, height: image.height },
-      count: 6
+    attributes: {
+      position: [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1]
+    },
+    uniforms: {
+      tNormal: regl.prop("normals"),
+      tElevation: regl.prop("elevation"),
+      scale: [1, 1],
+      resolution,
+      sunDirection: vec3.normalize([], [1, 1, 0.5])
+    },
+    viewport,
+    count: 6
+  });
+
+  return (
+    image: HTMLImageElement,
+    pixelScale = 1,
+    elevationScale = 1
+  ): Promise<HTMLImageElement> => {
+    const tElevation = regl.texture({
+      data: image,
+      flipY: true
     });
 
-    cmdDirect();
+    regl.clear({
+      color: [0, 0, 0, 1],
+      depth: 1,
+      stencil: 0
+    });
+
+    const fboElevation = regl.framebuffer({
+      width: image.width,
+      height: image.height,
+      colorType: "float"
+    });
+
+    cmdProcessElevation({
+      image: tElevation,
+      elevation: fboElevation,
+      elevationScale
+    });
+
+    const fboNormal = regl.framebuffer({
+      width: image.width,
+      height: image.height,
+      colorType: "float"
+    });
+
+    cmdNormal({ elevation: fboElevation, normals: fboNormal, pixelScale });
+
+    cmdDirect({ elevation: fboElevation, normals: fboNormal });
 
     const dataUrl = canvas.toDataURL();
     const img = document.createElement("img");
-    //regl.destroy();
-
-    //canvas = null;
-
-    console.log("Created image");
 
     return new Promise(resolve => {
       img.onload = function() {
@@ -197,13 +199,79 @@ class HillshadeImageryProvider extends MapboxImageryProvider {
       };
       img.src = dataUrl;
     });
+  };
+}
+
+const emptyImage = document.createElement("img");
+emptyImage.width = 256;
+emptyImage.height = 256;
+
+class HillshadeImageryProvider extends MapboxImageryProvider {
+  // Fib about tile size in order to download fewer elevation tiles
+  tileWidth = 256;
+  tileHeight = 256;
+  terrainProvider = terrainProvider;
+  lastRequestedImageZoom = null;
+
+  nRunners = 0;
+  runnerQueue = [];
+
+  async getRunner() {
+    if (this.nRunners <= 5) {
+      let runner = createRunner();
+      this.nRunners += 1;
+      return runner;
+    }
+    const runner = this.runnerQueue.pop();
+    if (runner != null) return runner;
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(this.getRunner());
+      }, 100);
+    });
   }
 
-  async requestImage(x, y, z, request) {
-    const res = await super.requestImage(x, y, z, request);
-    if (res == null) return undefined;
-    const rect = this.tilingScheme.tileXYToRectangle(x, y, z);
-    return await this.processImage(res, rect);
+  async processImage(
+    image: HTMLImageElement,
+    rect: Cesium.Rectangle,
+    tileArgs: { x: number; y: number; z: number }
+  ): Promise<HTMLImageElement> {
+    const runCommands = await this.getRunner();
+    // if (this.lastRequestedImageZoom != tileArgs.z) {
+    //   console.log("Bailing from expensive tile computation");
+    //   this.runnerQueue.push(runCommands);
+    //   return emptyImage;
+    // }
+
+    const angle = rect.east - rect.west;
+    // rough meters per pixel (could get directly from zoom level)
+    const pixelScale = (6371000 * angle) / image.width;
+
+    const elevationScale = 1; //Math.max(1, 10 - zoomLevel * 1.5);
+    const t0 = performance.now();
+    const res = await runCommands(image, pixelScale, elevationScale);
+
+    const dt = performance.now() - t0;
+    console.log(
+      `Processing tile at ${tileArgs.x}, ${tileArgs.y}, ${tileArgs.z} took ${dt} ms`
+    );
+
+    this.runnerQueue.push(runCommands);
+
+    return res;
+  }
+
+  requestImage(x, y, z, request): Promise<Img> | undefined {
+    this.lastRequestedImageZoom = z;
+    const resultPromise = super.requestImage(x, y, z, request);
+    if (resultPromise == null) return undefined;
+    return new Promise((resolve, reject) => {
+      resultPromise.then(async res => {
+        const rect = this.tilingScheme.tileXYToRectangle(x, y, z);
+        const result = await this.processImage(res, rect, { x, y, z });
+        resolve(result);
+      });
+    });
   }
 }
 
@@ -215,7 +283,7 @@ const HillshadeLayer = props => {
       mapId: "mapbox.terrain-rgb",
       maximumLevel: 14,
       accessToken: process.env.MAPBOX_API_TOKEN,
-      format: "@2x.webp"
+      format: ".webp"
     })
   );
 

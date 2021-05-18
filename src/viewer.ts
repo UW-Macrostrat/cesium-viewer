@@ -3,7 +3,6 @@ import h from "@macrostrat/hyper";
 import { Viewer, CesiumComponentRef } from "resium";
 import NavigationMixin, { Units } from "@znemz/cesium-navigation";
 import "@znemz/cesium-navigation/dist/index.css";
-import { viewerCesiumInspectorMixin } from "cesiumSource/Cesium";
 
 import { format } from "d3-format";
 const Cesium: any = require("cesiumSource/Cesium");
@@ -38,36 +37,37 @@ const GlobeViewer = (props: GlobeViewerProps) => {
     if (cesiumElement == null) return;
 
     ref.current.cesiumElement.extend(NavigationMixin, {
-      distanceLabelFormatter: (convertedDistance, units: Units): string => {
-        // Convert for Mars (very janky)
-        let u = "";
-        if (units == "meters") u = "m";
-        if (units == "kilometers") u = "km";
-        if (u == "km" && convertedDistance * 0.5 < 0.5) {
-          return fmt(convertedDistance * 500) + " m";
-        }
-        return fmt(convertedDistance * 0.5) + " " + u;
-      },
+      // distanceLabelFormatter: (convertedDistance, units: Units): string => {
+      //   // Convert for Mars (very janky)
+      //   let u = "";
+      //   if (units == "meters") u = "m";
+      //   if (units == "kilometers") u = "km";
+      //   if (u == "km" && convertedDistance * 0.5 < 0.5) {
+      //     return fmt(convertedDistance * 500) + " m";
+      //   }
+      //   return fmt(convertedDistance * 0.5) + " " + u;
+      // }
     });
-    //ref.current.cesiumElement.extend(Cesium.viewerCesiumInspectorMixin)
+    //ref.current.cesiumElement.extend(Cesium.viewerCesiumInspectorMixin, {});
   }, []);
 
   useEffect(() => {
     if (ref.current.cesiumElement == null) return;
     if (showInspector) {
-      ref.current.cesiumElement.extend(viewerCesiumInspectorMixin);
+      ref.current.cesiumElement.extend(Cesium.viewerCesiumInspectorMixin, {});
     }
   }, [showInspector]);
+
+  //Cesium.Ellipsoid.MARSIAU2000
+  const ellipsoid = undefined;
 
   return h(Viewer, {
     ref,
     full: true,
     baseLayerPicker: false,
     fullscreenButton: false,
-    mapProjection: new Cesium.GeographicProjection(
-      Cesium.Ellipsoid.MARSIAU2000
-    ),
-    globe: new Cesium.Globe(Cesium.Ellipsoid.MARSIAU2000),
+    //mapProjection: new Cesium.GeographicProjection(ellipsoid),
+    //globe: new Cesium.Globe(ellipsoid),
     homeButton: false,
     infoBox: false,
     navigationInstructionsInitiallyVisible: false,
@@ -82,7 +82,7 @@ const GlobeViewer = (props: GlobeViewerProps) => {
     timeline: false,
     imageryProvider: false,
     //shadows: true,
-    ...rest,
+    ...rest
   });
 };
 

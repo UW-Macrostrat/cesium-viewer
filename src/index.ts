@@ -9,21 +9,20 @@ import {
   MapClickHandler,
   SelectedPoint,
   MapChangeTracker,
-  CameraPositioner,
-  FlyToInitialPosition,
+  CameraPositioner
 } from "./position";
 import { Fog, Globe, Scene } from "resium";
 import { terrainProvider } from "./layers";
 
-const CesiumView = (props) => {
+const CesiumView = props => {
   const {
     terrainExaggeration = 1.0,
     terrainProvider,
     children,
     showInspector,
-    displayQuality = DisplayQuality.High,
+    displayQuality = DisplayQuality.Low,
     onClick,
-    onViewChange,
+    onViewChange
   } = props;
 
   return h(
@@ -34,7 +33,7 @@ const CesiumView = (props) => {
       terrainExaggeration,
       highResolution: displayQuality == DisplayQuality.High,
       skyBox: false,
-      showInspector,
+      showInspector
       //terrainShadows: Cesium.ShadowMode.ENABLED
     },
     [
@@ -45,7 +44,7 @@ const CesiumView = (props) => {
           enableLighting: false,
           showGroundAtmosphere: true,
           maximumScreenSpaceError:
-            displayQuality == DisplayQuality.High ? 1.5 : 2,
+            displayQuality == DisplayQuality.High ? 1.5 : 2
           //shadowMode: Cesium.ShadowMode.ENABLED
         },
         null
@@ -54,9 +53,8 @@ const CesiumView = (props) => {
       h(MapChangeTracker),
       children,
       h.if(onClick != null)(MapClickHandler, { onClick }),
-      //h(FlyToInitialPosition),
       h(CameraPositioner),
-      h(Fog, { density: 1e-6 }),
+      h(Fog, { density: 1e-6 })
     ]
   );
 };
