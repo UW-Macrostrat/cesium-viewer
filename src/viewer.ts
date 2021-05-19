@@ -16,7 +16,7 @@ type GlobeViewerProps = ComponentProps<typeof Viewer> & {
 
 const GlobeViewer = (props: GlobeViewerProps) => {
   const ref = useRef<CesiumComponentRef<Cesium.Viewer>>(null);
-  const { highResolution, showInspector = false, ...rest } = props;
+  const { highResolution = false, showInspector = false, ...rest } = props;
 
   let resolutionScale = 1;
   if (highResolution) {

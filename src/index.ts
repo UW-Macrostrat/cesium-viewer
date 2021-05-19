@@ -9,20 +9,29 @@ import {
   MapClickHandler,
   SelectedPoint,
   MapChangeTracker,
-  CameraPositioner
+  CameraPositioner,
+  CameraParams
 } from "./position";
 import { Fog, Globe, Scene } from "resium";
 import { terrainProvider } from "./layers";
+import { CameraFlyToProps } from "resium/dist/types/src/CameraFlyTo/CameraFlyTo";
 
-const CesiumView = props => {
+interface CesiumViewProps {
+  displayQuality: DisplayQuality;
+  flyTo: CameraFlyToProps;
+}
+
+const CesiumView = (props: CesiumViewProps) => {
   const {
-    terrainExaggeration = 1.0,
+    terrainExaggeration = 1.00001,
     terrainProvider,
     children,
     showInspector,
     displayQuality = DisplayQuality.Low,
     onClick,
-    onViewChange
+    onViewChange,
+    flyTo,
+    ...rest
   } = props;
 
   return h(
@@ -50,10 +59,10 @@ const CesiumView = props => {
         null
       ),
       h(Scene, { requestRenderMode: true }),
-      h(MapChangeTracker),
+      h(MapChangeTracker, { onViewChange }),
       children,
       h.if(onClick != null)(MapClickHandler, { onClick }),
-      h(CameraPositioner),
+      h(CameraPositioner, flyTo),
       h(Fog, { density: 1e-6 })
     ]
   );

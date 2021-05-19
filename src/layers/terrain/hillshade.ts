@@ -247,7 +247,10 @@ class HillshadeImageryProvider extends MapboxImageryProvider {
     // rough meters per pixel (could get directly from zoom level)
     const pixelScale = (6371000 * angle) / image.width;
 
-    const elevationScale = 1; //Math.max(1, 10 - zoomLevel * 1.5);
+    const elevationScale = Math.min(
+      Math.max(1, Math.pow(10 - tileArgs.z, 1.2)),
+      5
+    );
     const t0 = performance.now();
     const res = await runCommands(image, pixelScale, elevationScale);
 

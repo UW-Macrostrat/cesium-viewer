@@ -10,6 +10,7 @@ import {
   CameraFlyTo,
   Camera
 } from "resium";
+import { CameraFlyToProps } from "resium/dist/types/src/CameraFlyTo/CameraFlyTo";
 // import {
 //   queryMap,
 //   mapMoved
@@ -104,10 +105,10 @@ function nadirCameraPosition(x: number, y: number, z: number) {
   return new Cesium.Cartesian3.fromDegrees(x, y, distanceForZoom(z));
 }
 
-const CameraPositioner = props => {
-  const vals = useSelector(s => s.globe.flyToProps);
-  if (vals == null) return null;
-  return h(CameraFlyTo, { ...props, ...vals });
+const CameraPositioner = (props: CameraFlyToProps) => {
+  const { destination, ...rest } = props;
+  if (destination == null) return null;
+  return h(CameraFlyTo, { destination, ...rest });
 };
 
 const getMapCenter = (viewer: Cesium.Viewer): Position => {
@@ -158,7 +159,7 @@ function flyToParams(pos: CameraParams, rest: any = {}) {
     destination: Cesium.Cartesian3.fromDegrees(
       pos.longitude,
       pos.latitude,
-      pos.height / MARS_RADIUS_SCALAR
+      pos.height // / MARS_RADIUS_SCALAR
     ),
     orientation: {
       heading: Cesium.Math.toRadians(pos.heading),
@@ -169,12 +170,17 @@ function flyToParams(pos: CameraParams, rest: any = {}) {
   };
 }
 
-const MapChangeTracker = props => {
+const MapChangeTracker = ({
+  onViewChange
+}: {
+  onViewChange(): CameraParams;
+}) => {
   const { viewer } = useCesium();
   const dispatch = useDispatch();
   const onMoveEnd = () => {
     let params = getPosition(viewer);
     dispatch({ type: "set-camera-position", value: params });
+    onViewChange(params);
   };
   // should also use onChange...
   return h(Camera, { onMoveEnd });
