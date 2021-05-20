@@ -48,6 +48,9 @@ const GlobeViewer = (props: GlobeViewerProps) => {
       //   return fmt(convertedDistance * 0.5) + " " + u;
       // }
     });
+    ref.current.cesiumElement.scene.requestRenderMode = true;
+    ref.current.cesiumElement.scene.maximumRenderTimeChange = Infinity;
+    ref.current.cesiumElement.scene.debugShowFramesPerSecond = true;
     //ref.current.cesiumElement.extend(Cesium.viewerCesiumInspectorMixin, {});
   }, []);
 

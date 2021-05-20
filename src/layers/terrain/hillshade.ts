@@ -6,9 +6,21 @@ import { useSelector } from "react-redux";
 import REGL from "regl";
 import { vec3 } from "gl-matrix";
 import { terrainProvider } from "./provider";
+import axios from "axios";
 // https://wwwtyro.net/2019/03/21/advanced-map-shading.html
 
 type Img = HTMLImageElement | HTMLCanvasElement;
+
+function loadImage(url): Promise<HTMLImageElement> {
+  const img = document.createElement("img");
+
+  return new Promise(resolve => {
+    img.onload = function() {
+      resolve(img);
+    };
+    img.src = url;
+  });
+}
 
 interface CanvasContext {
   canvas: HTMLCanvasElement;
@@ -152,8 +164,44 @@ function createRunner() {
     count: 6
   });
 
+  const cmdMask = regl({
+    vert: `
+      precision highp float;
+      attribute vec2 position;
+      void main() {
+        gl_Position = vec4(position, 0, 1);
+      }
+    `,
+    frag: `
+      precision highp float;
+      uniform sampler2D tSatellite;
+      uniform vec2 resolution;
+      varying vec2 v_texCoord;
+
+      void main() {
+        vec2 ires = 1.0 / resolution;
+        vec3 satellite = texture2D(tSatellite, ires * gl_FragCoord.xy).rgb;
+
+        gl_FragColor = vec4(satellite, 1.0);
+      }
+    `,
+    depth: {
+      enable: false
+    },
+    attributes: {
+      position: [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1]
+    },
+    uniforms: {
+      tSatellite: regl.prop("mask"),
+      resolution
+    },
+    viewport,
+    count: 6
+  });
+
   return (
     image: HTMLImageElement,
+    mask: HTMLImageElement | null,
     pixelScale = 1,
     elevationScale = 1
   ): Promise<HTMLImageElement> => {
@@ -190,15 +238,17 @@ function createRunner() {
 
     cmdDirect({ elevation: fboElevation, normals: fboNormal });
 
-    const dataUrl = canvas.toDataURL();
-    const img = document.createElement("img");
+    console.log(mask);
+    if (mask != null) {
+      const tMask = regl.texture({
+        data: mask,
+        flipY: true
+      });
+      cmdMask({ mask: tMask });
+    }
 
-    return new Promise(resolve => {
-      img.onload = function() {
-        resolve(img);
-      };
-      img.src = dataUrl;
-    });
+    const dataUrl = canvas.toDataURL();
+    return loadImage(dataUrl);
   };
 }
 
@@ -232,23 +282,19 @@ class HillshadeImageryProvider extends MapboxImageryProvider {
   }
 
   async processImage(
-    image: HTMLImageElement,
+    image: HTMLImageElement | HTMLCanvasElement,
+    mask: HTMLImageElement | HTMLCanvasElement | null,
     rect: Cesium.Rectangle,
     tileArgs: { x: number; y: number; z: number }
   ): Promise<HTMLImageElement> {
     const runCommands = await this.getRunner();
-    // if (this.lastRequestedImageZoom != tileArgs.z) {
-    //   console.log("Bailing from expensive tile computation");
-    //   this.runnerQueue.push(runCommands);
-    //   return emptyImage;
-    // }
 
     const angle = rect.east - rect.west;
     // rough meters per pixel (could get directly from zoom level)
     const pixelScale = (6371000 * angle) / image.width;
 
     const elevationScale = Math.min(
-      Math.max(1, Math.pow(10 - tileArgs.z, 1.2)),
+      Math.max(1, Math.pow(Math.max(10 - tileArgs.z, 1), 1.1)),
       5
     );
     const t0 = performance.now();
@@ -268,10 +314,18 @@ class HillshadeImageryProvider extends MapboxImageryProvider {
     this.lastRequestedImageZoom = z;
     const resultPromise = super.requestImage(x, y, z, request);
     if (resultPromise == null) return undefined;
+
+    const base =
+      "https://api.mapbox.com/styles/v1/jczaplewski/ckowdcq8h0gym17p2fh1vwdkd/tiles/256";
+
+    const maskPromise = loadImage(
+      base + `/${z}/${x}/${y}?access_token=${process.env.MAPBOX_API_TOKEN}`
+    );
+
     return new Promise((resolve, reject) => {
-      resultPromise.then(async res => {
+      Promise.all([resultPromise, maskPromise]).then(async ([res, mask]) => {
         const rect = this.tilingScheme.tileXYToRectangle(x, y, z);
-        const result = await this.processImage(res, rect, { x, y, z });
+        const result = await this.processImage(res, mask, rect, { x, y, z });
         resolve(result);
       });
     });
