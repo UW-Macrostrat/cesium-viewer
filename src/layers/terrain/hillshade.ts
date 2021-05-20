@@ -248,7 +248,7 @@ class HillshadeImageryProvider extends MapboxImageryProvider {
     const pixelScale = (6371000 * angle) / image.width;
 
     const elevationScale = Math.min(
-      Math.max(1, Math.pow(10 - tileArgs.z, 1.2)),
+      Math.max(1, Math.pow(Math.max(10 - tileArgs.z, 1), 1.1)),
       5
     );
     const t0 = performance.now();
