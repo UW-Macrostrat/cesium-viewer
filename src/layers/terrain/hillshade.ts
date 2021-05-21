@@ -18,6 +18,7 @@ function loadImage(url): Promise<HTMLImageElement> {
     img.onload = function() {
       resolve(img);
     };
+    img.crossOrigin = "";
     img.src = url;
   });
 }
@@ -72,7 +73,7 @@ function createRunner() {
     },
     uniforms: {
       tElevation: regl.prop("image"),
-      elevationScale: regl.prop("elevationScale"),
+      elevationScale: 1,
       resolution
     },
     viewport,
@@ -161,7 +162,8 @@ function createRunner() {
       sunDirection: vec3.normalize([], [1, 1, 0.5])
     },
     viewport,
-    count: 6
+    count: 6,
+    framebuffer: regl.prop("image")
   });
 
   const cmdMask = regl({
@@ -174,15 +176,17 @@ function createRunner() {
     `,
     frag: `
       precision highp float;
-      uniform sampler2D tSatellite;
+      uniform sampler2D tMask;
+      uniform sampler2D tImage;
       uniform vec2 resolution;
       varying vec2 v_texCoord;
 
       void main() {
         vec2 ires = 1.0 / resolution;
-        vec3 satellite = texture2D(tSatellite, ires * gl_FragCoord.xy).rgb;
+        vec3 satellite = texture2D(tMask, ires * gl_FragCoord.xy).rgb;
+        vec3 color = texture2D(tImage, ires * gl_FragCoord.xy).rgb;
 
-        gl_FragColor = vec4(satellite, 1.0);
+        gl_FragColor = vec4(satellite * color * 1.5, 1.0);
       }
     `,
     depth: {
@@ -192,7 +196,8 @@ function createRunner() {
       position: [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1]
     },
     uniforms: {
-      tSatellite: regl.prop("mask"),
+      tMask: regl.prop("mask"),
+      tImage: regl.prop("image"),
       resolution
     },
     viewport,
@@ -236,7 +241,13 @@ function createRunner() {
 
     cmdNormal({ elevation: fboElevation, normals: fboNormal, pixelScale });
 
-    cmdDirect({ elevation: fboElevation, normals: fboNormal });
+    const fboImage = regl.framebuffer({
+      width: image.width,
+      height: image.height,
+      colorType: "float"
+    });
+
+    cmdDirect({ elevation: fboElevation, normals: fboNormal, image: fboImage });
 
     console.log(mask);
     if (mask != null) {
@@ -244,7 +255,7 @@ function createRunner() {
         data: mask,
         flipY: true
       });
-      cmdMask({ mask: tMask });
+      cmdMask({ mask: tMask, image: fboImage });
     }
 
     const dataUrl = canvas.toDataURL();
@@ -294,11 +305,11 @@ class HillshadeImageryProvider extends MapboxImageryProvider {
     const pixelScale = (6371000 * angle) / image.width;
 
     const elevationScale = Math.min(
-      Math.max(1, Math.pow(Math.max(10 - tileArgs.z, 1), 1.1)),
+      Math.max(1, Math.pow(Math.max(5 - tileArgs.z, 1), 1.1)),
       5
     );
     const t0 = performance.now();
-    const res = await runCommands(image, pixelScale, elevationScale);
+    const res = await runCommands(image, mask, pixelScale, elevationScale);
 
     const dt = performance.now() - t0;
     console.log(
