@@ -8,11 +8,11 @@ const terrainProvider = new MapboxTerrainProvider({
   //highResolution: true,
   //detailScalar: 4,
   //minimumErrorLevel: 20,
-  url: IonResource.fromAssetId("1"),
+  //url: IonResource.fromAssetId("1"),
   requestVertexNormals: false,
   requestWaterMask: false,
   accessToken: process.env.MAPBOX_API_TOKEN,
-  highResolution: false
+  highResolution: true
 });
 
 export { terrainProvider };

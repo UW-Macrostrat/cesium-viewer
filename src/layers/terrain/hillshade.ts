@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { MapboxImageryProvider } from "cesium";
 import h from "@macrostrat/hyper";
-import { ImageryLayer } from "resium";
+import { ConstructorOptions, ImageryLayer } from "resium";
 import { useSelector } from "react-redux";
 import REGL from "regl";
 import { vec3 } from "gl-matrix";
@@ -11,8 +11,8 @@ import axios from "axios";
 
 type Img = HTMLImageElement | HTMLCanvasElement;
 
-function loadImage(url): Promise<HTMLImageElement> {
-  const img = document.createElement("img");
+function loadImage(url, imgSrc = null): Promise<HTMLImageElement> {
+  const img = imgSrc ?? document.createElement("img");
 
   return new Promise(resolve => {
     img.onload = function() {
@@ -29,18 +29,18 @@ interface CanvasContext {
   regl: REGL.Regl;
 }
 
-function createRunner() {
+function createRunner(tileSize = 256) {
   const canvas = document.createElement("canvas");
-  canvas.width = 256;
-  canvas.height = 256;
+  canvas.width = tileSize;
+  canvas.height = tileSize;
 
   const regl = REGL({
     canvas,
     extensions: ["OES_texture_float", "WEBGL_color_buffer_float"]
   });
 
-  const resolution = [256, 256];
-  const viewport = { x: 0, y: 0, width: 256, height: 256 };
+  const resolution = [tileSize, tileSize];
+  const viewport = { x: 0, y: 0, width: tileSize, height: tileSize };
   const cmdProcessElevation = regl({
     vert: `
         precision highp float;
@@ -229,8 +229,7 @@ function createRunner() {
 
     cmdProcessElevation({
       image: tElevation,
-      elevation: fboElevation,
-      elevationScale
+      elevation: fboElevation
     });
 
     const fboNormal = regl.framebuffer({
@@ -259,27 +258,26 @@ function createRunner() {
     }
 
     const dataUrl = canvas.toDataURL();
-    return loadImage(dataUrl);
+    return loadImage(dataUrl, mask);
   };
 }
-
-const emptyImage = document.createElement("img");
-emptyImage.width = 256;
-emptyImage.height = 256;
-
 class HillshadeImageryProvider extends MapboxImageryProvider {
   // Fib about tile size in order to download fewer elevation tiles
-  tileWidth = 256;
-  tileHeight = 256;
   terrainProvider = terrainProvider;
   lastRequestedImageZoom = null;
+  tileSize = 256;
 
   nRunners = 0;
   runnerQueue = [];
 
+  constructor(options: any = {}) {
+    super(options);
+    this.tileSize = options.highResolution ?? false ? 512 : 256;
+  }
+
   async getRunner() {
     if (this.nRunners <= 5) {
-      let runner = createRunner();
+      let runner = createRunner(this.tileSize);
       this.nRunners += 1;
       return runner;
     }
@@ -326,8 +324,9 @@ class HillshadeImageryProvider extends MapboxImageryProvider {
     const resultPromise = super.requestImage(x, y, z, request);
     if (resultPromise == null) return undefined;
 
-    const base =
-      "https://api.mapbox.com/styles/v1/jczaplewski/ckowdcq8h0gym17p2fh1vwdkd/tiles/256";
+    const tileSize = this.tileSize;
+
+    const base = `https://api.mapbox.com/styles/v1/jczaplewski/ckowdcq8h0gym17p2fh1vwdkd/tiles/${tileSize}`;
 
     const maskPromise = loadImage(
       base + `/${z}/${x}/${y}?access_token=${process.env.MAPBOX_API_TOKEN}`
@@ -351,7 +350,8 @@ const HillshadeLayer = props => {
       mapId: "mapbox.terrain-rgb",
       maximumLevel: 14,
       accessToken: process.env.MAPBOX_API_TOKEN,
-      format: ".webp"
+      highResolution: true,
+      format: "@2x.webp"
     })
   );
 
