@@ -7,5 +7,14 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@macrostrat/cesium-martini": "^1.1.1",
+    "@macrostrat/hyper": "^1.2.13",
+    "@types/cesium": "^1.67.13",
+    "cesium": "^1.81.0",
+    "copy-webpack-plugin": "^6.4.1",
+    "regl": "^2.1.0",
+    "resium": "^1.13.1"
+  }
 }
