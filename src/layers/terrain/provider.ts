@@ -1,5 +1,4 @@
 import MapboxTerrainProvider from "@macrostrat/cesium-martini";
-import { IonResource } from "cesium";
 
 const terrainProvider = new MapboxTerrainProvider({
   // @ts-ignore
@@ -12,7 +11,7 @@ const terrainProvider = new MapboxTerrainProvider({
   requestVertexNormals: false,
   requestWaterMask: false,
   accessToken: process.env.MAPBOX_API_TOKEN,
-  highResolution: true
+  highResolution: true,
 });
 
 export { terrainProvider };
