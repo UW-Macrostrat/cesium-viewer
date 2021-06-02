@@ -14,8 +14,8 @@ type Img = HTMLImageElement | HTMLCanvasElement;
 function loadImage(url, imgSrc = null): Promise<HTMLImageElement> {
   const img = imgSrc ?? document.createElement("img");
 
-  return new Promise(resolve => {
-    img.onload = function() {
+  return new Promise((resolve) => {
+    img.onload = function () {
       resolve(img);
     };
     img.crossOrigin = "";
@@ -36,7 +36,7 @@ function createRunner(tileSize = 256) {
 
   const regl = REGL({
     canvas,
-    extensions: ["OES_texture_float", "WEBGL_color_buffer_float"]
+    extensions: ["OES_texture_float", "WEBGL_color_buffer_float"],
   });
 
   const resolution = [tileSize, tileSize];
@@ -69,16 +69,16 @@ function createRunner(tileSize = 256) {
         }
       `,
     attributes: {
-      position: [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1]
+      position: [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1],
     },
     uniforms: {
       tElevation: regl.prop("image"),
       elevationScale: 1,
-      resolution
+      resolution,
     },
     viewport,
     count: 6,
-    framebuffer: regl.prop("elevation")
+    framebuffer: regl.prop("elevation"),
   });
 
   const cmdNormal = regl({
@@ -112,16 +112,16 @@ function createRunner(tileSize = 256) {
         }
       `,
     attributes: {
-      position: [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1]
+      position: [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1],
     },
     uniforms: {
       tElevation: regl.prop("elevation"),
       pixelScale: regl.prop("pixelScale"),
-      resolution
+      resolution,
     },
     viewport,
     count: 6,
-    framebuffer: regl.prop("normals")
+    framebuffer: regl.prop("normals"),
   });
 
   const cmdDirect = regl({
@@ -152,18 +152,18 @@ function createRunner(tileSize = 256) {
         }
       `,
     attributes: {
-      position: [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1]
+      position: [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1],
     },
     uniforms: {
       tNormal: regl.prop("normals"),
       tElevation: regl.prop("elevation"),
       scale: [1, 1],
       resolution,
-      sunDirection: vec3.normalize([], [1, 1, 0.5])
+      sunDirection: vec3.normalize([], [1, 1, 0.5]),
     },
     viewport,
     count: 6,
-    framebuffer: regl.prop("image")
+    framebuffer: regl.prop("image"),
   });
 
   const cmdMask = regl({
@@ -190,18 +190,18 @@ function createRunner(tileSize = 256) {
       }
     `,
     depth: {
-      enable: false
+      enable: false,
     },
     attributes: {
-      position: [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1]
+      position: [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1],
     },
     uniforms: {
       tMask: regl.prop("mask"),
       tImage: regl.prop("image"),
-      resolution
+      resolution,
     },
     viewport,
-    count: 6
+    count: 6,
   });
 
   return (
@@ -212,30 +212,30 @@ function createRunner(tileSize = 256) {
   ): Promise<HTMLImageElement> => {
     const tElevation = regl.texture({
       data: image,
-      flipY: true
+      flipY: true,
     });
 
     regl.clear({
       color: [0, 0, 0, 1],
       depth: 1,
-      stencil: 0
+      stencil: 0,
     });
 
     const fboElevation = regl.framebuffer({
       width: image.width,
       height: image.height,
-      colorType: "float"
+      colorType: "float",
     });
 
     cmdProcessElevation({
       image: tElevation,
-      elevation: fboElevation
+      elevation: fboElevation,
     });
 
     const fboNormal = regl.framebuffer({
       width: image.width,
       height: image.height,
-      colorType: "float"
+      colorType: "float",
     });
 
     cmdNormal({ elevation: fboElevation, normals: fboNormal, pixelScale });
@@ -243,16 +243,15 @@ function createRunner(tileSize = 256) {
     const fboImage = regl.framebuffer({
       width: image.width,
       height: image.height,
-      colorType: "float"
+      colorType: "float",
     });
 
     cmdDirect({ elevation: fboElevation, normals: fboNormal, image: fboImage });
 
-    console.log(mask);
     if (mask != null) {
       const tMask = regl.texture({
         data: mask,
-        flipY: true
+        flipY: true,
       });
       cmdMask({ mask: tMask, image: fboImage });
     }
@@ -342,8 +341,8 @@ class HillshadeImageryProvider extends MapboxImageryProvider {
   }
 }
 
-const HillshadeLayer = props => {
-  const hasSatellite = useSelector(state => state.update.mapHasSatellite);
+const HillshadeLayer = (props) => {
+  const hasSatellite = useSelector((state) => state.update.mapHasSatellite);
 
   let hillshade = useRef(
     new HillshadeImageryProvider({
@@ -351,7 +350,7 @@ const HillshadeLayer = props => {
       maximumLevel: 14,
       accessToken: process.env.MAPBOX_API_TOKEN,
       highResolution: true,
-      format: "@2x.webp"
+      format: "@2x.webp",
     })
   );
 

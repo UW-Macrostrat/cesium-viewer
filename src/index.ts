@@ -10,12 +10,13 @@ import {
   SelectedPoint,
   MapChangeTracker,
   CameraPositioner,
-  CameraParams
+  CameraParams,
+  flyToParams,
 } from "./position";
 import { Fog, Globe, Scene } from "resium";
 import { terrainProvider } from "./layers";
 import { CameraFlyToProps } from "resium/dist/types/src/CameraFlyTo/CameraFlyTo";
-
+import { useEffect, useState } from "react";
 interface CesiumViewProps {
   displayQuality: DisplayQuality;
   flyTo: CameraFlyToProps;
@@ -30,9 +31,20 @@ const CesiumView = (props: CesiumViewProps) => {
     displayQuality = DisplayQuality.Low,
     onClick,
     onViewChange,
+    initialPosition,
     flyTo,
     ...rest
   } = props;
+
+  const [mapPosParams, setMapPosParams] = useState(
+    flyTo ?? flyToParams(initialPosition, { duration: 0, once: true })
+  );
+
+  useEffect(() => {
+    console.log("Setting map position", flyTo);
+    if (flyTo == null) return;
+    setMapPosParams(flyTo);
+  }, [flyTo]);
 
   return h(
     GlobeViewer,
@@ -42,7 +54,7 @@ const CesiumView = (props: CesiumViewProps) => {
       terrainExaggeration,
       highResolution: displayQuality == DisplayQuality.High,
       skyBox: false,
-      showInspector
+      showInspector,
       //terrainShadows: Cesium.ShadowMode.ENABLED
     },
     [
@@ -53,17 +65,17 @@ const CesiumView = (props: CesiumViewProps) => {
           enableLighting: false,
           showGroundAtmosphere: true,
           maximumScreenSpaceError:
-            displayQuality == DisplayQuality.High ? 1.5 : 2
+            displayQuality == DisplayQuality.High ? 1.5 : 2,
           //shadowMode: Cesium.ShadowMode.ENABLED
         },
         null
       ),
       h(Scene, { requestRenderMode: true }),
-      //h(MapChangeTracker, { onViewChange }),
+      h(MapChangeTracker, { onViewChange }),
       children,
       h.if(onClick != null)(MapClickHandler, { onClick }),
-      h(CameraPositioner, flyTo),
-      h(Fog, { density: 1e-6 })
+      h(CameraPositioner, mapPosParams),
+      h(Fog, { density: 8e-5 }),
     ]
   );
 };

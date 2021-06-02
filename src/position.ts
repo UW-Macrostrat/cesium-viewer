@@ -8,7 +8,7 @@ import {
   useCesium,
   Entity,
   CameraFlyTo,
-  Camera
+  Camera,
 } from "resium";
 import { CameraFlyToProps } from "resium/dist/types/src/CameraFlyTo/CameraFlyTo";
 // import {
@@ -49,14 +49,14 @@ const MapClickHandler = ({ onClick, pickFeatures = false }) => {
   const { viewer } = useCesium();
   const dispatch = useDispatch();
 
-  const clickPoint = movement => {
+  const clickPoint = (movement) => {
     const ray = viewer.camera.getPickRay(movement.position);
     var cartesian = viewer.scene.globe.pick(ray, viewer.scene);
 
     if (pickFeatures) {
       viewer.scene.imageryLayers
         ?.pickImageryLayerFeatures(ray, viewer.scene)
-        ?.then(features => dispatch({ type: "pick-features", features }));
+        ?.then((features) => dispatch({ type: "pick-features", features }));
     }
     //var cartesian = viewer.scene.pickPosition(movement.position);
 
@@ -75,8 +75,8 @@ const MapClickHandler = ({ onClick, pickFeatures = false }) => {
   return h(ScreenSpaceEventHandler, [
     h(ScreenSpaceEvent, {
       action: clickPoint,
-      type: Cesium.ScreenSpaceEventType.LEFT_CLICK
-    })
+      type: Cesium.ScreenSpaceEventType.LEFT_CLICK,
+    }),
   ]);
 };
 
@@ -95,7 +95,7 @@ const SelectedPoint = (props: { point: GeographicLocation | null }) => {
     outlineColor: Cesium.Color.WHITE,
     outlineWidth: 2,
     pixelSize: 10,
-    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
+    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
   };
 
   return h(Entity, { position, point: pointGraphics });
@@ -144,7 +144,7 @@ const getCameraPosition = (viewer: Cesium.Viewer): CameraParams => {
     height: pos.height, // * MARS_RADIUS_SCALAR,
     heading: Cesium.Math.toDegrees(camera.heading),
     pitch: Cesium.Math.toDegrees(camera.pitch),
-    roll: Cesium.Math.toDegrees(camera.roll)
+    roll: Cesium.Math.toDegrees(camera.roll),
   };
 };
 
@@ -164,22 +164,20 @@ function flyToParams(pos: CameraParams, rest: any = {}) {
     orientation: {
       heading: Cesium.Math.toRadians(pos.heading),
       pitch: Cesium.Math.toRadians(pos.pitch),
-      roll: Cesium.Math.toRadians(pos.roll)
+      roll: Cesium.Math.toRadians(pos.roll),
     },
-    ...rest
+    ...rest,
   };
 }
 
 const MapChangeTracker = ({
-  onViewChange
+  onViewChange,
 }: {
   onViewChange(): CameraParams;
 }) => {
   const { viewer } = useCesium();
-  const dispatch = useDispatch();
   const onMoveEnd = () => {
     let params = getPosition(viewer);
-    dispatch({ type: "set-camera-position", value: params });
     onViewChange(params);
   };
   // should also use onChange...
@@ -210,5 +208,5 @@ export {
   ViewInfo,
   flyToParams,
   MARS_RADIUS_SCALAR,
-  GeographicLocation
+  GeographicLocation,
 };
