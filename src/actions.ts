@@ -124,7 +124,6 @@ const initialState = {
 
 const createInitialState = (args = {}) => {
   let state = { ...initialState, ...args };
-  console.log(state);
   return state;
 };
 

@@ -75,7 +75,7 @@ const CesiumView = (props: CesiumViewProps) => {
       children,
       h.if(onClick != null)(MapClickHandler, { onClick }),
       h(CameraPositioner, mapPosParams),
-      h(Fog, { density: 8e-5 }),
+      h(Fog, { density: 5e-5 }),
     ]
   );
 };
