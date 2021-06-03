@@ -4,25 +4,48 @@ import { hyperStyled } from "@macrostrat/hyper";
 import styles from "./main.styl";
 const h = hyperStyled(styles);
 import { GlobeViewer } from "./viewer";
-import { GeologyLayer, SatelliteLayer, HillshadeLayer } from "./layers";
 import { DisplayQuality } from "./actions";
 import {
   MapClickHandler,
   SelectedPoint,
   MapChangeTracker,
-  FlyToInitialPosition
+  FlyToInitialPosition,
+  CameraPositioner,
+  CameraParams,
+  flyToParams
 } from "./position";
 import { Fog, Globe, Scene } from "resium";
 import { terrainProvider } from "./layers";
+import { CameraFlyToProps } from "resium/dist/types/src/CameraFlyTo/CameraFlyTo";
+import { useEffect, useState } from "react";
+interface CesiumViewProps {
+  displayQuality: DisplayQuality;
+  flyTo: CameraFlyToProps;
+}
 
-const CesiumView = props => {
+const CesiumView = (props: CesiumViewProps) => {
   const {
-    terrainExaggeration,
+    terrainExaggeration = 1.00001,
+    terrainProvider,
+    children,
     showInspector,
-    displayQuality = DisplayQuality.High,
+    displayQuality = DisplayQuality.Low,
     onClick,
-    onViewChange
+    onViewChange,
+    initialPosition,
+    flyTo,
+    ...rest
   } = props;
+
+  const [mapPosParams, setMapPosParams] = useState(
+    flyTo ?? flyToParams(initialPosition, { duration: 0, once: true })
+  );
+
+  useEffect(() => {
+    console.log("Setting map position", flyTo);
+    if (flyTo == null) return;
+    setMapPosParams(flyTo);
+  }, [flyTo]);
 
   return h(
     GlobeViewer,
@@ -31,7 +54,6 @@ const CesiumView = props => {
       // not sure why we have to do this...
       terrainExaggeration,
       highResolution: displayQuality == DisplayQuality.High,
-      skyBox: false,
       showInspector
       //terrainShadows: Cesium.ShadowMode.ENABLED
     },
@@ -42,23 +64,23 @@ const CesiumView = props => {
           baseColor: Cesium.Color.LIGHTGRAY,
           enableLighting: false,
           showGroundAtmosphere: true,
-          maximumScreenSpaceError: displayQuality == DisplayQuality.High ? 2 : 3
+          maximumScreenSpaceError:
+            displayQuality == DisplayQuality.High ? 1.5 : 2
           //shadowMode: Cesium.ShadowMode.ENABLED
         },
         null
       ),
       h(Scene, { requestRenderMode: true }),
-      h.if(onViewChange != null)(MapChangeTracker, { onChange: onViewChange }),
-      h(SatelliteLayer),
-      h(HillshadeLayer),
-      h(GeologyLayer, { alpha: 0.5 }),
+      h(MapChangeTracker, { onViewChange }),
+      children,
       h.if(onClick != null)(MapClickHandler, { onClick }),
-      h(SelectedPoint),
-      h(FlyToInitialPosition),
-      h(Fog, { density: 1e-4 })
+      //h(SelectedPoint),
+      h(CameraPositioner, mapPosParams),
+      h(Fog, { density: 5e-5 })
     ]
   );
 };
 
 export * from "./actions";
+export { DisplayQuality };
 export default CesiumView;

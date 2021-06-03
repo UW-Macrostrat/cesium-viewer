@@ -1,4 +1,5 @@
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { useCallback } from "react";
 import * as Cesium from "cesiumSource/Cesium";
 import h from "@macrostrat/hyper";
 import { MapCoordinates } from "./actions";
@@ -10,6 +11,29 @@ import {
   CameraFlyTo,
   Camera
 } from "resium";
+import { CameraFlyToProps } from "resium/dist/types/src/CameraFlyTo/CameraFlyTo";
+// import {
+//   queryMap,
+//   mapMoved
+// } from '../../actions'
+
+const MARS_RADIUS_SCALAR = 3390 / 6371;
+
+type Position = { x: number; y: number; z: number };
+
+interface CameraParams {
+  longitude: number;
+  latitude: number;
+  height: number;
+  heading: number;
+  pitch: number;
+  roll: number;
+}
+
+type ViewInfo = {
+  camera: CameraParams;
+  viewCenter: Position;
+};
 
 const rangeAtZoom18 = 250; // ~ 250 m away
 
@@ -22,13 +46,19 @@ const zoomForDistance = (distance: number) => {
   return 18 - Math.log2(distance / rangeAtZoom18);
 };
 
-const MapClickHandler = ({ onClick }) => {
+const MapClickHandler = ({ onClick, onPickFeatures = null }) => {
   const { viewer } = useCesium();
   if (viewer == null) return;
 
   const clickPoint = movement => {
     const ray = viewer.camera.getPickRay(movement.position);
     var cartesian = viewer.scene.globe.pick(ray, viewer.scene);
+
+    if (onPickFeatures != null) {
+      viewer.scene.imageryLayers
+        ?.pickImageryLayerFeatures(ray, viewer.scene)
+        ?.then(onPickFeatures);
+    }
     //var cartesian = viewer.scene.pickPosition(movement.position);
 
     var cartographic = Cesium.Cartographic.fromCartesian(cartesian);
@@ -38,6 +68,9 @@ const MapClickHandler = ({ onClick }) => {
     //addPoint(longitude, latitude)
     const zoom = 7; // we pin this to 7 for now
     onClick({ latitude, longitude, zoom });
+
+    // We need to request a render in case we change something
+    viewer.scene.requestRender();
   };
 
   return h(ScreenSpaceEventHandler, [
@@ -48,13 +81,16 @@ const MapClickHandler = ({ onClick }) => {
   ]);
 };
 
-const SelectedPoint = ({ longitude, latitude }: MapCoordinates) => {
-  let position = Cesium.Cartesian3.fromDegrees(
-    // TODO: Numbers should be guaranteed in typescript
-    longitude,
-    latitude
-    // need to also get height
-  );
+type GeographicLocation = {
+  latitude: number;
+  longitude: number;
+};
+
+const SelectedPoint = (props: { point: GeographicLocation | null }) => {
+  if (props.point == null) return null;
+  const { latitude, longitude } = props.point;
+
+  let position = Cesium.Cartesian3.fromDegrees(longitude, latitude);
   let pointGraphics = {
     color: Cesium.Color.DODGERBLUE,
     outlineColor: Cesium.Color.WHITE,
@@ -66,34 +102,27 @@ const SelectedPoint = ({ longitude, latitude }: MapCoordinates) => {
   return h(Entity, { position, point: pointGraphics });
 };
 
-const FlyToInitialPosition = props => {
-  const mapOpts = useSelector(s => s.update);
-  const mpos = mapOpts?.mapXYZ;
-  if (mpos == null) return null;
+function nadirCameraPosition(x: number, y: number, z: number) {
+  return new Cesium.Cartesian3.fromDegrees(x, y, distanceForZoom(z));
+}
 
-  // Make sure we deactivate this once initial position is reached
-  //const currentPos = useState(null)
-
-  const zoom = parseFloat(mpos.z);
-  const z = distanceForZoom(zoom);
-
-  const destination = new Cesium.Cartesian3.fromDegrees(
-    parseFloat(mpos.x),
-    parseFloat(mpos.y),
-    z
-  );
-
-  return h(CameraFlyTo, { destination, duration: 0, once: true });
+const CameraPositioner = (props: CameraFlyToProps) => {
+  const { destination, ...rest } = props;
+  if (destination == null) return null;
+  return h(CameraFlyTo, { destination, ...rest });
 };
 
-const getMapCenter = (viewer: Cesium.Viewer) => {
+const getMapCenter = (viewer: Cesium.Viewer): Position => {
   const centerPx = new Cesium.Cartesian2(
     viewer.container.clientWidth / 2,
     viewer.container.clientHeight / 2
   );
   const pickRay = viewer.camera.getPickRay(centerPx);
   const pickPosition = viewer.scene.globe.pick(pickRay, viewer.scene);
-  if (pickPosition == null) return;
+  if (pickPosition == null) {
+    console.log("Could not get pick position");
+    return;
+  }
   const cpos = Cesium.Cartographic.fromCartesian(pickPosition);
   const x = Cesium.Math.toDegrees(cpos.longitude);
   const y = Cesium.Math.toDegrees(cpos.latitude);
@@ -107,19 +136,78 @@ const getMapCenter = (viewer: Cesium.Viewer) => {
   return { x, y, z };
 };
 
-const MapChangeTracker = (props: { onChange(cpos: any): void }) => {
-  const { viewer } = useCesium();
-  const onChange = () => {
-    let cpos = getMapCenter(viewer);
-    if (cpos == null) return;
-    props.onChange(cpos);
+const getCameraPosition = (viewer: Cesium.Viewer): CameraParams => {
+  const { camera } = viewer;
+  const pos = Cesium.Cartographic.fromCartesian(camera.position);
+  return {
+    longitude: Cesium.Math.toDegrees(pos.longitude),
+    latitude: Cesium.Math.toDegrees(pos.latitude),
+    height: pos.height, // * MARS_RADIUS_SCALAR,
+    heading: Cesium.Math.toDegrees(camera.heading),
+    pitch: Cesium.Math.toDegrees(camera.pitch),
+    roll: Cesium.Math.toDegrees(camera.roll)
   };
-  return h(Camera, { onChange, onMoveEnd: onChange });
 };
+
+const getPosition = (viewer: Cesium.Viewer): ViewInfo => {
+  const viewCenter = getMapCenter(viewer);
+  const camera = getCameraPosition(viewer);
+  return { camera, viewCenter };
+};
+
+function flyToParams(pos: CameraParams, rest: any = {}) {
+  return {
+    destination: Cesium.Cartesian3.fromDegrees(
+      pos.longitude,
+      pos.latitude,
+      pos.height // / MARS_RADIUS_SCALAR
+    ),
+    orientation: {
+      heading: Cesium.Math.toRadians(pos.heading),
+      pitch: Cesium.Math.toRadians(pos.pitch),
+      roll: Cesium.Math.toRadians(pos.roll)
+    },
+    ...rest
+  };
+}
+
+const MapChangeTracker = ({
+  onViewChange
+}: {
+  onViewChange(): CameraParams;
+}) => {
+  const { viewer } = useCesium();
+  const onMoveEnd = () => {
+    let params = getPosition(viewer);
+    onViewChange(params);
+  };
+  // should also use onChange...
+  return h(Camera, { onMoveEnd });
+};
+
+// We should be able to specify a unique viewpoint using 5 parameters as follows
+// x=50&y=40&h=500&i=0&a=0
+/* x: longitude,
+   y: latitude,
+   d: distance (object reference frame)
+OR h: height above datum (absolute camera ref)
+   e: elevation angle (0 is vertical, 90 is horizontal),
+   a: azimuth, angle 0-360
+   NOTE: this depends on terrain elevation so is unstable
+   - Elevation and azimuth stay the same for both absolute camera position
+     and position around an outcrop
+   - Distance/height is the only relevant difference
+*/
 
 export {
   MapClickHandler,
   SelectedPoint,
   MapChangeTracker,
-  FlyToInitialPosition
+  CameraPositioner,
+  nadirCameraPosition,
+  CameraParams,
+  ViewInfo,
+  flyToParams,
+  MARS_RADIUS_SCALAR,
+  GeographicLocation
 };

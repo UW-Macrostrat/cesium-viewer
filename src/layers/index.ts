@@ -53,3 +53,4 @@ const SatelliteLayer = ({ isOn = true, ...rest }) => {
 
 export { GeologyLayer, SatelliteLayer };
 export * from "./terrain";
+export * from "./vector-imagery-provider";
