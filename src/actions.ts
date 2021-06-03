@@ -194,7 +194,6 @@ export {
   DisplayQuality,
   MapCoordinates,
   GlobeState,
-  DisplayQuality,
   ActiveMapLayer,
   createInitialState
 };

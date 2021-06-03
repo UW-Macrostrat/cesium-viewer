@@ -9,7 +9,6 @@ import {
   MapClickHandler,
   SelectedPoint,
   MapChangeTracker,
-  FlyToInitialPosition,
   CameraPositioner,
   CameraParams,
   flyToParams
@@ -28,11 +27,11 @@ const CesiumView = (props: CesiumViewProps) => {
     terrainExaggeration = 1.00001,
     terrainProvider,
     children,
-    showInspector,
+    showInspector = false,
     displayQuality = DisplayQuality.Low,
     onClick,
     onViewChange,
-    initialPosition,
+    initialPosition = { latitude: 0, longitude: 0 },
     flyTo,
     ...rest
   } = props;
@@ -76,11 +75,11 @@ const CesiumView = (props: CesiumViewProps) => {
       h.if(onClick != null)(MapClickHandler, { onClick }),
       //h(SelectedPoint),
       h(CameraPositioner, mapPosParams),
-      h(Fog, { density: 5e-5 })
+      h(Fog, { density: 8e-5 })
     ]
   );
 };
 
+export * from "./query-string";
 export * from "./actions";
-export { DisplayQuality };
 export default CesiumView;

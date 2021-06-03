@@ -24,10 +24,10 @@ type Position = { x: number; y: number; z: number };
 interface CameraParams {
   longitude: number;
   latitude: number;
-  height: number;
-  heading: number;
-  pitch: number;
-  roll: number;
+  height?: number;
+  heading?: number;
+  pitch?: number;
+  roll?: number;
 }
 
 type ViewInfo = {
@@ -160,12 +160,12 @@ function flyToParams(pos: CameraParams, rest: any = {}) {
     destination: Cesium.Cartesian3.fromDegrees(
       pos.longitude,
       pos.latitude,
-      pos.height // / MARS_RADIUS_SCALAR
+      pos.height ?? 1e7 // / MARS_RADIUS_SCALAR
     ),
     orientation: {
-      heading: Cesium.Math.toRadians(pos.heading),
-      pitch: Cesium.Math.toRadians(pos.pitch),
-      roll: Cesium.Math.toRadians(pos.roll)
+      heading: Cesium.Math.toRadians(pos.heading ?? 0),
+      pitch: Cesium.Math.toRadians(pos.pitch ?? -90),
+      roll: Cesium.Math.toRadians(pos.roll ?? 0)
     },
     ...rest
   };
