@@ -53,7 +53,6 @@ const CesiumView = (props: CesiumViewProps) => {
       // not sure why we have to do this...
       terrainExaggeration,
       highResolution: displayQuality == DisplayQuality.High,
-      skyBox: false,
       showInspector,
       //terrainShadows: Cesium.ShadowMode.ENABLED
     },

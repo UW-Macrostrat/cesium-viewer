@@ -41,6 +41,7 @@ function createRunner(tileSize = 256) {
 
   const resolution = [tileSize, tileSize];
   const viewport = { x: 0, y: 0, width: tileSize, height: tileSize };
+
   const cmdProcessElevation = regl({
     vert: `
         precision highp float;
@@ -221,7 +222,20 @@ function createRunner(tileSize = 256) {
       stencil: 0,
     });
 
+    // Create framebuffers
     const fboElevation = regl.framebuffer({
+      width: tileSize,
+      height: tileSize,
+      colorType: "float",
+    });
+
+    const fboImage = regl.framebuffer({
+      width: image.width,
+      height: image.height,
+      colorType: "float",
+    });
+
+    const fboNormal = regl.framebuffer({
       width: image.width,
       height: image.height,
       colorType: "float",
@@ -232,21 +246,17 @@ function createRunner(tileSize = 256) {
       elevation: fboElevation,
     });
 
-    const fboNormal = regl.framebuffer({
-      width: image.width,
-      height: image.height,
-      colorType: "float",
+    cmdNormal({
+      elevation: fboElevation,
+      normals: fboNormal,
+      pixelScale,
     });
 
-    cmdNormal({ elevation: fboElevation, normals: fboNormal, pixelScale });
-
-    const fboImage = regl.framebuffer({
-      width: image.width,
-      height: image.height,
-      colorType: "float",
+    cmdDirect({
+      elevation: fboElevation,
+      normals: fboNormal,
+      image: fboImage,
     });
-
-    cmdDirect({ elevation: fboElevation, normals: fboNormal, image: fboImage });
 
     if (mask != null) {
       const tMask = regl.texture({
@@ -254,9 +264,19 @@ function createRunner(tileSize = 256) {
         flipY: true,
       });
       cmdMask({ mask: tMask, image: fboImage });
+      tMask.destroy();
     }
 
+    // Destroy framebuffers to prevent them from sitting around in memory.
+    fboElevation.destroy();
+    fboNormal.destroy();
+    fboImage.destroy();
+    tElevation.destroy();
+
     const dataUrl = canvas.toDataURL();
+
+    //framebuffers["elevation"].use(() => regl.clear({ color: [0, 0, 0, 1] }));
+
     return loadImage(dataUrl, mask);
   };
 }
