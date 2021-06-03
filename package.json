@@ -12,8 +12,10 @@
     "@macrostrat/cesium-martini": "^1.1.1",
     "@macrostrat/hyper": "^1.2.13",
     "@types/cesium": "^1.67.13",
+    "@znemz/cesium-navigation": "^4.0.0",
     "cesium": "^1.81.0",
     "copy-webpack-plugin": "^6.4.1",
+    "react-redux": "^7.2.4",
     "regl": "^2.1.0",
     "resium": "^1.13.1"
   }

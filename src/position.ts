@@ -1,13 +1,14 @@
 import { useSelector } from "react-redux";
 import * as Cesium from "cesiumSource/Cesium";
 import h from "@macrostrat/hyper";
+import { MapCoordinates } from "./actions";
 import {
   ScreenSpaceEventHandler,
   ScreenSpaceEvent,
   useCesium,
   Entity,
   CameraFlyTo,
-  Camera,
+  Camera
 } from "resium";
 
 const rangeAtZoom18 = 250; // ~ 250 m away
@@ -23,8 +24,9 @@ const zoomForDistance = (distance: number) => {
 
 const MapClickHandler = ({ onClick }) => {
   const { viewer } = useCesium();
+  if (viewer == null) return;
 
-  const clickPoint = (movement) => {
+  const clickPoint = movement => {
     const ray = viewer.camera.getPickRay(movement.position);
     var cartesian = viewer.scene.globe.pick(ray, viewer.scene);
     //var cartesian = viewer.scene.pickPosition(movement.position);
@@ -41,21 +43,16 @@ const MapClickHandler = ({ onClick }) => {
   return h(ScreenSpaceEventHandler, [
     h(ScreenSpaceEvent, {
       action: clickPoint,
-      type: Cesium.ScreenSpaceEventType.LEFT_CLICK,
-    }),
+      type: Cesium.ScreenSpaceEventType.LEFT_CLICK
+    })
   ]);
 };
 
-const SelectedPoint = (props) => {
-  const mapOpts = useSelector((s) => s.update);
-  const { infoMarkerLng, infoMarkerLat } = mapOpts;
-  // TODO: fix weird null signifier
-  if (infoMarkerLng == -999 || infoMarkerLat == -999) return null;
-
+const SelectedPoint = ({ longitude, latitude }: MapCoordinates) => {
   let position = Cesium.Cartesian3.fromDegrees(
     // TODO: Numbers should be guaranteed in typescript
-    parseFloat(infoMarkerLng),
-    parseFloat(infoMarkerLat)
+    longitude,
+    latitude
     // need to also get height
   );
   let pointGraphics = {
@@ -63,14 +60,14 @@ const SelectedPoint = (props) => {
     outlineColor: Cesium.Color.WHITE,
     outlineWidth: 2,
     pixelSize: 10,
-    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
   };
 
   return h(Entity, { position, point: pointGraphics });
 };
 
-const FlyToInitialPosition = (props) => {
-  const mapOpts = useSelector((s) => s.update);
+const FlyToInitialPosition = props => {
+  const mapOpts = useSelector(s => s.update);
   const mpos = mapOpts?.mapXYZ;
   if (mpos == null) return null;
 
@@ -124,5 +121,5 @@ export {
   MapClickHandler,
   SelectedPoint,
   MapChangeTracker,
-  FlyToInitialPosition,
+  FlyToInitialPosition
 };

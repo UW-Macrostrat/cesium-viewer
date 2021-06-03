@@ -5,14 +5,17 @@ type SetExaggeration = {
 
 enum DisplayQuality {
   High = "high",
-  Low = "low",
+  Low = "low"
 }
+
+type MapCoordinates = {
+  latitude: number;
+  longitude: number;
+};
 
 type QueryGlobe = {
   type: "query-globe";
-  value: {
-    latitude: number;
-    longitude: number;
+  value: MapCoordinates & {
     zoom: number;
     map_id: string | null;
   };
@@ -37,11 +40,13 @@ type GlobeAction =
 interface GlobeState {
   verticalExaggeration: number;
   displayQuality: DisplayQuality;
+  showInspector: boolean;
 }
 
-const initialState = {
+const initialState: GlobeState = {
   verticalExaggeration: 1,
   displayQuality: DisplayQuality.High,
+  showInspector: false
 };
 
 const reducer = (state: GlobeState = initialState, action: GlobeAction) => {
@@ -57,4 +62,17 @@ const reducer = (state: GlobeState = initialState, action: GlobeAction) => {
   }
 };
 
-export { reducer as globeReducer, GlobeAction, DisplayQuality };
+interface GlobeStateProviderProps {
+  store?: GlobeState;
+  dispatch?: (action: GlobeAction) => void;
+}
+
+function GlobeStateProvider({ store, dispatch }: GlobeStateProviderProps) {}
+
+export {
+  reducer as globeReducer,
+  GlobeAction,
+  DisplayQuality,
+  MapCoordinates,
+  GlobeState
+};

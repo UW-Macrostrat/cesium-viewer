@@ -2,11 +2,10 @@ import { useRef, ComponentProps } from "react";
 import {
   Credit,
   WebMapTileServiceImageryProvider,
-  MapboxImageryProvider,
+  MapboxImageryProvider
 } from "cesium";
 import h from "@macrostrat/hyper";
 import { ImageryLayer } from "resium";
-import { useSelector } from "react-redux";
 
 type GeoLayerProps = Omit<
   ComponentProps<typeof ImageryLayer>,
@@ -14,7 +13,7 @@ type GeoLayerProps = Omit<
 >;
 
 const GeologyLayer = (props: GeoLayerProps) => {
-  const hasGeology = useSelector((state) => state.update.mapHasBedrock);
+  const { isOn = true } = props;
 
   let geology = useRef(
     new WebMapTileServiceImageryProvider({
@@ -25,18 +24,16 @@ const GeologyLayer = (props: GeoLayerProps) => {
       maximumLevel: 19,
       layer: "",
       tileMatrixSetID: "",
-      credit: new Credit("UW-Madison, Macrostrat Lab"),
+      credit: new Credit("UW-Madison, Macrostrat Lab")
     })
   );
 
-  if (!hasGeology) return null;
+  if (!isOn) return null;
 
   return h(ImageryLayer, { imageryProvider: geology.current, ...props });
 };
 
-const SatelliteLayer = (props) => {
-  const hasSatellite = useSelector((state) => state.update.mapHasSatellite);
-
+const SatelliteLayer = ({ isOn = true, ...rest }) => {
   let format = ".webp";
   if (window.devicePixelRatio >= 2) format = "@2x.webp";
 
@@ -45,13 +42,13 @@ const SatelliteLayer = (props) => {
       mapId: "mapbox.satellite",
       maximumLevel: 19,
       format,
-      accessToken: process.env.MAPBOX_API_TOKEN,
+      accessToken: process.env.MAPBOX_API_TOKEN
     })
   );
 
-  if (!hasSatellite) return null;
+  if (!isOn) return null;
 
-  return h(ImageryLayer, { imageryProvider: satellite.current, ...props });
+  return h(ImageryLayer, { imageryProvider: satellite.current, ...rest });
 };
 
 export { GeologyLayer, SatelliteLayer };
