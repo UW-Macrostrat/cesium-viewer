@@ -13,7 +13,7 @@ import {
   CameraParams,
   flyToParams
 } from "./position";
-import { Fog, Globe, Scene } from "resium";
+import { Fog, Globe, Scene, useCesium } from "resium";
 import { terrainProvider } from "./layers";
 import { CameraFlyToProps } from "resium/dist/types/src/CameraFlyTo/CameraFlyTo";
 import { useEffect, useState } from "react";
@@ -63,6 +63,7 @@ const CesiumView = (props: CesiumViewProps) => {
           baseColor: Cesium.Color.LIGHTGRAY,
           enableLighting: false,
           showGroundAtmosphere: true,
+          depthTestAgainstTerrain: false,
           maximumScreenSpaceError:
             displayQuality == DisplayQuality.High ? 1.5 : 2
           //shadowMode: Cesium.ShadowMode.ENABLED
@@ -83,3 +84,4 @@ const CesiumView = (props: CesiumViewProps) => {
 export * from "./query-string";
 export * from "./actions";
 export default CesiumView;
+export { useCesium };
