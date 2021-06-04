@@ -1,6 +1,7 @@
 import { info } from "console";
 import { CameraParams } from "./position";
 
+interface EmptyObject {}
 interface PositionHashParams {
   x: string;
   y: string;
@@ -9,11 +10,15 @@ interface PositionHashParams {
   a?: string;
 }
 
-export function buildPositionHash(pos: CameraParams): PositionHashParams {
+export function buildPositionHash(
+  pos: CameraParams | null
+): PositionHashParams | EmptyObject {
+  if (pos == null) return {};
+
   let res: PositionHashParams = {
     x: pos.longitude.toFixed(4),
     y: pos.latitude.toFixed(4),
-    z: pos.height.toFixed(0),
+    z: pos.height.toFixed(0)
   };
 
   const elevationAngle = Math.round(90 + pos.pitch);
@@ -35,7 +40,7 @@ function getNumbers(
   obj: { [k: string]: string },
   keys: string[]
 ): NumberOrNull[] {
-  return keys.map((d) => {
+  return keys.map(d => {
     const num = parseFloat(obj[d]);
     return isNaN(num) ? null : num;
   });
@@ -47,7 +52,7 @@ const defaultPos = {
   height: 60000,
   heading: 0,
   pitch: -90,
-  roll: 0,
+  roll: 0
 };
 
 export function getInitialPosition(
@@ -66,7 +71,7 @@ export function getInitialPosition(
     height: z ?? 5000,
     heading: a ?? 0,
     pitch: -90 + (e ?? 0),
-    roll: 0,
+    roll: 0
   };
   console.log("Setting initial position from hash: ", pos);
   return pos;
