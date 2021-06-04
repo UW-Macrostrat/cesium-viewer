@@ -50,7 +50,7 @@ const GlobeViewer = (props: GlobeViewerProps) => {
     });
     ref.current.cesiumElement.scene.requestRenderMode = true;
     ref.current.cesiumElement.scene.maximumRenderTimeChange = Infinity;
-    ref.current.cesiumElement.scene.debugShowFramesPerSecond = true;
+    //ref.current.cesiumElement.scene.debugShowFramesPerSecond = true;
     //ref.current.cesiumElement.extend(Cesium.viewerCesiumInspectorMixin, {});
   }, []);
 
