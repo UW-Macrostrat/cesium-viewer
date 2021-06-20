@@ -3,7 +3,7 @@ import { FormGroup, NumericInput, Switch } from "@blueprintjs/core";
 import { useDispatch, useSelector } from "react-redux";
 import { DisplayQuality } from "./actions";
 
-const GlobeSettings = (props) => {
+const GlobeSettings = () => {
   const dispatch = useDispatch();
   const state = useSelector((s) => s.globe);
 
@@ -24,7 +24,7 @@ const GlobeSettings = (props) => {
       h(Switch, {
         value: state.displayQuality,
         onChange(isOn) {
-          const value = isOn ? DisplayQuality.HIGH : DisplayQuality.LOW;
+          const value = isOn ? DisplayQuality.High : DisplayQuality.Low;
           dispatch({ type: "set-display-quality", value });
         },
       })
