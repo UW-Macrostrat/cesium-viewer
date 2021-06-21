@@ -12,7 +12,7 @@ const terrainProvider = new MapboxTerrainProvider({
   requestWaterMask: false,
   accessToken: process.env.MAPBOX_API_TOKEN,
   highResolution: false,
-  skipOddLevels: true,
+  skipOddLevels: false,
 });
 
 export { terrainProvider };
