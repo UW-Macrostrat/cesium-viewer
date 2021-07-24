@@ -31,6 +31,7 @@ const GlobeViewer = (props: GlobeViewerProps) => {
     const { cesiumElement } = ref.current ?? {};
     if (cesiumElement == null) return;
 
+    console.log(`Setting resolution scaling factor to ${resolutionScale}`);
     ref.current.cesiumElement.resolutionScale = resolutionScale;
 
     // Enable anti-aliasing
