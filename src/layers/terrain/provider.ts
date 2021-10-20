@@ -5,7 +5,7 @@ const terrainProvider = new MapboxTerrainProvider({
   //accessToken: process.env.MAPBOX_API_TOKEN
   //format: 'webp',
   //highResolution: true,
-  //detailScalar: 4,
+  detailScalar: 4,
   //minimumErrorLevel: 20,
   //url: IonResource.fromAssetId("1"),
   requestVertexNormals: false,

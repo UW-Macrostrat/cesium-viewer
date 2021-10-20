@@ -361,9 +361,7 @@ class HillshadeImageryProvider extends MapboxImageryProvider {
   }
 }
 
-const HillshadeLayer = (props) => {
-  const hasSatellite = useSelector((state) => state.update.mapHasSatellite);
-
+const HillshadeLayer = ({ enabled = true, ...rest }) => {
   let hillshade = useRef(
     new HillshadeImageryProvider({
       mapId: "mapbox.terrain-rgb",
@@ -374,8 +372,8 @@ const HillshadeLayer = (props) => {
     })
   );
 
-  if (hasSatellite) return null;
-  return h(ImageryLayer, { imageryProvider: hillshade.current, ...props });
+  if (!enabled) return null;
+  return h(ImageryLayer, { imageryProvider: hillshade.current, ...rest });
 };
 
 export { HillshadeLayer };

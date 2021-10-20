@@ -56,7 +56,6 @@ const GlobeViewer = (props: GlobeViewerProps) => {
     cesiumElement.scene.requestRenderMode = true;
     cesiumElement.scene.maximumRenderTimeChange = Infinity;
     cesiumElement.scene.screenSpaceCameraController.minimumZoomDistance = 2;
-    debugger;
     //cesiumElement.scene.debugShowFramesPerSecond = true;
     //ref.current.cesiumElement.extend(Cesium.viewerCesiumInspectorMixin, {});
   }, [ref]);
