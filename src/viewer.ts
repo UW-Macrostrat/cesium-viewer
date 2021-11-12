@@ -56,9 +56,15 @@ const GlobeViewer = (props: GlobeViewerProps) => {
   }, []);
 
   useEffect(() => {
-    if (ref.current.cesiumElement == null) return;
+    const viewer = ref.current?.cesiumElement;
+    if (viewer == null) return;
+    if (viewer.cesiumInspector == null) {
+      viewer.extend(viewerCesiumInspectorMixin);
+    }
     if (showInspector) {
-      ref.current.cesiumElement.extend(viewerCesiumInspectorMixin);
+      viewer.cesiumInspector.hidden = false;
+    } else {
+      viewer.cesiumInspector.hidden = true;
     }
   }, [showInspector]);
 
