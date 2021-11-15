@@ -3,7 +3,6 @@ import h from "@macrostrat/hyper";
 import { Viewer, CesiumComponentRef } from "resium";
 import NavigationMixin, { Units } from "@znemz/cesium-navigation";
 import "@znemz/cesium-navigation/dist/index.css";
-import { viewerCesiumInspectorMixin } from "cesiumSource/Cesium";
 
 import { format } from "d3-format";
 const Cesium: any = require("cesiumSource/Cesium");
@@ -15,9 +14,16 @@ type GlobeViewerProps = ComponentProps<typeof Viewer> & {
   showInspector: boolean;
 };
 
+const mapProjectionMars = new Cesium.GeographicProjection(
+  Cesium.Ellipsoid.MARSIAU2000
+);
+const globeMars = new Cesium.Globe(Cesium.Ellipsoid.MARSIAU2000);
+
 const GlobeViewer = (props: GlobeViewerProps) => {
   const ref = useRef<CesiumComponentRef<Cesium.Viewer>>(null);
-  const { highResolution, showInspector = false, ...rest } = props;
+  const { highResolution, ...rest } = props;
+
+  console.log(props);
 
   let resolutionScale = 1;
   if (highResolution) {
@@ -39,7 +45,6 @@ const GlobeViewer = (props: GlobeViewerProps) => {
   useEffect(() => {
     const { cesiumElement } = ref.current ?? {};
     if (cesiumElement == null) return;
-
     cesiumElement.extend(NavigationMixin, {
       distanceLabelFormatter: (convertedDistance, units: Units): string => {
         // Convert for Mars (very janky)
@@ -53,30 +58,15 @@ const GlobeViewer = (props: GlobeViewerProps) => {
       },
     });
     //ref.current.cesiumElement.extend(Cesium.viewerCesiumInspectorMixin)
-  }, []);
-
-  useEffect(() => {
-    const viewer = ref.current?.cesiumElement;
-    if (viewer == null) return;
-    if (viewer.cesiumInspector == null) {
-      viewer.extend(viewerCesiumInspectorMixin);
-    }
-    if (showInspector) {
-      viewer.cesiumInspector.hidden = false;
-    } else {
-      viewer.cesiumInspector.hidden = true;
-    }
-  }, [showInspector]);
+  }, [ref]);
 
   return h(Viewer, {
     ref,
     full: true,
     baseLayerPicker: false,
     fullscreenButton: false,
-    mapProjection: new Cesium.GeographicProjection(
-      Cesium.Ellipsoid.MARSIAU2000
-    ),
-    globe: new Cesium.Globe(Cesium.Ellipsoid.MARSIAU2000),
+    mapProjection: mapProjectionMars,
+    globe: globeMars,
     homeButton: false,
     infoBox: false,
     navigationInstructionsInitiallyVisible: false,

@@ -5,15 +5,15 @@ import styles from "./main.styl";
 const h = hyperStyled(styles);
 import { GlobeViewer } from "./viewer";
 import { DisplayQuality } from "./actions";
+import { useEffect } from "react";
 import {
   MapClickHandler,
   SelectedPoint,
   MapChangeTracker,
   CameraPositioner,
-  FlyToInitialPosition,
 } from "./position";
 import { Fog, Globe, Scene } from "resium";
-import { terrainProvider } from "./layers";
+import { ViewInspector } from "./inspector";
 
 const CesiumView = (props) => {
   const {
@@ -26,6 +26,8 @@ const CesiumView = (props) => {
     onViewChange,
   } = props;
 
+  console.log(children);
+
   return h(
     GlobeViewer,
     {
@@ -34,7 +36,6 @@ const CesiumView = (props) => {
       terrainExaggeration,
       highResolution: displayQuality == DisplayQuality.High,
       skyBox: false,
-      showInspector,
       //terrainShadows: Cesium.ShadowMode.ENABLED
     },
     [
@@ -53,10 +54,11 @@ const CesiumView = (props) => {
       h(Scene, { requestRenderMode: true }),
       h(MapChangeTracker),
       children,
-      h.if(onClick != null)(MapClickHandler, { onClick }),
+      //h.if(onClick != null)(MapClickHandler, { onClick }),
       //h(FlyToInitialPosition),
       h(CameraPositioner),
       h(Fog, { density: 1e-6 }),
+      h(ViewInspector, { show: showInspector }),
     ]
   );
 };
