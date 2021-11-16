@@ -190,7 +190,7 @@ const HillshadeLayer = (props) => {
   const hasSatellite = useSelector((state) => state.update.mapHasSatellite);
 
   let hillshade = useRef(
-    new HillshadeImageryProvider({
+    new MarsHillshadeImageryProvider({
       mapId: "mapbox.terrain-rgb",
       maximumLevel: 14,
       accessToken: process.env.MAPBOX_API_TOKEN,
@@ -201,5 +201,4 @@ const HillshadeLayer = (props) => {
   if (hasSatellite) return null;
   return h(ImageryLayer, { imageryProvider: hillshade.current, ...props });
 };
-
 export { HillshadeLayer };
