@@ -351,6 +351,8 @@ class HillshadeImageryProvider extends MapboxImageryProvider {
       base + `/${z}/${x}/${y}?access_token=${process.env.MAPBOX_API_TOKEN}`
     );
 
+    //const maskPromise = Promise.resolve(null);
+
     return new Promise((resolve, reject) => {
       Promise.all([resultPromise, maskPromise]).then(async ([res, mask]) => {
         const rect = this.tilingScheme.tileXYToRectangle(x, y, z);

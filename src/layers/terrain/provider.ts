@@ -13,6 +13,7 @@ const terrainProvider = new MapboxTerrainProvider({
   accessToken: process.env.MAPBOX_API_TOKEN,
   highResolution: false,
   skipOddLevels: false,
+  fillPoles: true,
 });
 
 export { terrainProvider };
