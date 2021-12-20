@@ -338,9 +338,23 @@ class HillshadeImageryProvider extends MapboxImageryProvider {
     return res;
   }
 
-  requestImage(x, y, z, request): Promise<Img> | undefined {
+  async maskImage(resultPromise, maskPromise, { x, y, z }) {
+    return Promise.all([resultPromise, maskPromise]).then(
+      async ([res, mask]) => {
+        const rect = this.tilingScheme.tileXYToRectangle(x, y, z);
+        const result = await this.processImage(res, mask, rect, { x, y, z });
+        return result;
+      }
+    );
+  }
+
+  requestBaseImage(x: number, y: number, z: number, request) {
     this.lastRequestedImageZoom = z;
-    const resultPromise = super.requestImage(x, y, z, request);
+    return super.requestImage(x, y, z, request);
+  }
+
+  requestImage(x, y, z, request): Promise<Img> | undefined {
+    const resultPromise = this.requestBaseImage(x, y, z, request);
     if (resultPromise == null) return undefined;
 
     const tileSize = this.tileSize;
@@ -352,14 +366,7 @@ class HillshadeImageryProvider extends MapboxImageryProvider {
     );
 
     //const maskPromise = Promise.resolve(null);
-
-    return new Promise((resolve, reject) => {
-      Promise.all([resultPromise, maskPromise]).then(async ([res, mask]) => {
-        const rect = this.tilingScheme.tileXYToRectangle(x, y, z);
-        const result = await this.processImage(res, mask, rect, { x, y, z });
-        resolve(result);
-      });
-    });
+    return this.maskImage(resultPromise, maskPromise, { x, y, z });
   }
 }
 
@@ -370,7 +377,7 @@ const HillshadeLayer = ({ enabled = true, ...rest }) => {
       maximumLevel: 14,
       accessToken: process.env.MAPBOX_API_TOKEN,
       highResolution: true,
-      format: "@2x.webp",
+      format: "@2x.png",
     })
   );
 
@@ -378,4 +385,4 @@ const HillshadeLayer = ({ enabled = true, ...rest }) => {
   return h(ImageryLayer, { imageryProvider: hillshade.current, ...rest });
 };
 
-export { HillshadeLayer };
+export { HillshadeLayer, HillshadeImageryProvider };
