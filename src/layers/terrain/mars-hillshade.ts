@@ -191,9 +191,7 @@ const MarsHillshadeLayer = (props) => {
       layer: "",
       tileMatrixSetID: "",
       credit: null,
-      url:
-        process.env.API_BASE_URL +
-        "/tiles/terrain/{TileMatrix}/{TileCol}/{TileRow}.png",
+      url: `http://argyre.geoscience.wisc.edu/tiles/elevation-mosaic/tiles/{TileMatrix}/{TileCol}/{TileRow}.png?resampling_method=bilinear`,
     })
   );
 

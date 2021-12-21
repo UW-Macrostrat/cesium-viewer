@@ -14,6 +14,11 @@ type GlobeViewerProps = ComponentProps<typeof Viewer> & {
   showInspector: boolean;
 };
 
+const mapProjectionMars = new Cesium.GeographicProjection(
+  Cesium.Ellipsoid.MARSIAU2000
+);
+const globeMars = new Cesium.Globe(Cesium.Ellipsoid.MARSIAU2000);
+
 const GlobeViewer = (props: GlobeViewerProps) => {
   const ref = useRef<CesiumComponentRef<Cesium.Viewer>>(null);
   const {
@@ -30,29 +35,20 @@ const GlobeViewer = (props: GlobeViewerProps) => {
   useEffect(() => {
     const { cesiumElement } = ref.current ?? {};
     if (cesiumElement == null) return;
-
-    console.log(`Setting resolution scaling factor to ${resolutionScale}`);
-    ref.current.cesiumElement.resolutionScale = resolutionScale;
-
+    try {
+      cesiumElement.scene;
+    } catch {
+      return;
+    }
+    cesiumElement.resolutionScale = resolutionScale;
     // Enable anti-aliasing
-    ref.current.cesiumElement.scene.postProcessStages.fxaa.enabled = true;
+    cesiumElement.scene.postProcessStages.fxaa.enabled = true;
   }, [resolutionScale]);
 
   useEffect(() => {
     const { cesiumElement } = ref.current ?? {};
     if (cesiumElement == null) return;
-    cesiumElement.extend(NavigationMixin, {
-      // distanceLabelFormatter: (convertedDistance, units: Units): string => {
-      //   // Convert for Mars (very janky)
-      //   let u = "";
-      //   if (units == "meters") u = "m";
-      //   if (units == "kilometers") u = "km";
-      //   if (u == "km" && convertedDistance * 0.5 < 0.5) {
-      //     return fmt(convertedDistance * 500) + " m";
-      //   }
-      //   return fmt(convertedDistance * 0.5) + " " + u;
-      // }
-    });
+    cesiumElement.extend(NavigationMixin, { distanceLabelFormatter: undefined });
     cesiumElement.scene.requestRenderMode = true;
     cesiumElement.scene.maximumRenderTimeChange = Infinity;
     cesiumElement.scene.screenSpaceCameraController.minimumZoomDistance = 2;

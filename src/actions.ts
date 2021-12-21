@@ -10,6 +10,8 @@ import { CameraFlyTo } from "resium";
 enum ActiveMapLayer {
   CTX = "ctx",
   Hillshade = "hillshade",
+  OpenPlanetaryHillshade = "open-planetary-hillshade",
+  VikingMDIM = "viking-mdim",
 }
 
 interface CameraParamsExt {

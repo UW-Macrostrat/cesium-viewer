@@ -5,6 +5,7 @@ import styles from "./main.styl";
 const h = hyperStyled(styles);
 import { GlobeViewer } from "./viewer";
 import { DisplayQuality } from "./actions";
+import { useEffect } from "react";
 import {
   MapClickHandler,
   SelectedPoint,
@@ -13,6 +14,7 @@ import {
   CameraParams,
   flyToParams,
 } from "./position";
+import { ViewInspector } from "./inspector";
 import { Fog, Globe, Scene } from "resium";
 import { terrainProvider } from "./layers";
 import { CameraFlyToProps } from "resium/dist/types/src/CameraFlyTo/CameraFlyTo";
@@ -33,6 +35,7 @@ const CesiumView = (props: CesiumViewProps) => {
     onViewChange,
     initialPosition,
     flyTo,
+    skyBox = false,
     ...rest
   } = props;
 
@@ -53,7 +56,8 @@ const CesiumView = (props: CesiumViewProps) => {
       // not sure why we have to do this...
       terrainExaggeration,
       highResolution: displayQuality == DisplayQuality.High,
-      showInspector,
+      skyBox,
+      //skyBox: false,
       //terrainShadows: Cesium.ShadowMode.ENABLED
     },
     [
@@ -75,6 +79,9 @@ const CesiumView = (props: CesiumViewProps) => {
       h.if(onClick != null)(MapClickHandler, { onClick }),
       h(CameraPositioner, mapPosParams),
       h(Fog, { density: 5e-5 }),
+      //h(FlyToInitialPosition),
+      h(CameraPositioner),
+      h(ViewInspector, { show: showInspector }),
     ]
   );
 };

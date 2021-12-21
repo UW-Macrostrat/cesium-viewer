@@ -48,6 +48,7 @@ const zoomForDistance = (distance: number) => {
 const MapClickHandler = ({ onClick, pickFeatures = false }) => {
   const { viewer } = useCesium();
   const dispatch = useDispatch();
+  if (onClick == null) return null;
 
   const clickPoint = (movement) => {
     const ray = viewer.camera.getPickRay(movement.position);
