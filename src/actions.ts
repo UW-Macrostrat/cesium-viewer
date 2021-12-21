@@ -114,8 +114,8 @@ interface GlobeState {
 
 const destination = nadirCameraPosition(77.433, 18.411, 9);
 
-const initialState = {
-  positions: [],
+const initialState: GlobeState = {
+  positions: {},
   verticalExaggeration: 1,
   displayQuality: DisplayQuality.Low,
   mapLayer: ActiveMapLayer.CTX,
@@ -124,7 +124,7 @@ const initialState = {
   namedLocation: null,
 };
 
-const createInitialState = (args = {}) => {
+const createInitialState = (args: Partial<GlobeState> = {}) => {
   let state = { ...initialState, ...args };
   return state;
 };

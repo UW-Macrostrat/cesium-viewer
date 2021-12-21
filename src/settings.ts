@@ -22,9 +22,12 @@ const GlobeSettings = () => {
       FormGroup,
       { label: "High quality" },
       h(Switch, {
-        value: state.displayQuality,
-        onChange(isOn) {
-          const value = isOn ? DisplayQuality.High : DisplayQuality.Low;
+        checked: state.displayQuality == DisplayQuality.High,
+        onChange(evt) {
+          const value =
+            state.displayQuality == DisplayQuality.High
+              ? DisplayQuality.Low
+              : DisplayQuality.High;
           dispatch({ type: "set-display-quality", value });
         },
       })
@@ -33,8 +36,8 @@ const GlobeSettings = () => {
       FormGroup,
       { label: "Show inspector" },
       h(Switch, {
-        value: state.showInspector,
-        onChange() {
+        checked: state.showInspector,
+        onChange(evt) {
           dispatch({ type: "set-show-inspector", value: !state.showInspector });
         },
       })
