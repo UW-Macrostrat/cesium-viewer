@@ -1,4 +1,3 @@
-import { info } from "console";
 import { CameraParams } from "./position";
 
 interface PositionHashParams {
