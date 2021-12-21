@@ -34,8 +34,8 @@ const GlobeSettings = () => {
       { label: "Show inspector" },
       h(Switch, {
         value: state.showInspector,
-        onChange(value) {
-          dispatch({ type: "set-show-inspector", value });
+        onChange() {
+          dispatch({ type: "set-show-inspector", value: !state.showInspector });
         },
       })
     ),

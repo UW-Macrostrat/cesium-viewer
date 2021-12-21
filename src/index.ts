@@ -5,7 +5,6 @@ import styles from "./main.styl";
 const h = hyperStyled(styles);
 import { GlobeViewer } from "./viewer";
 import { DisplayQuality } from "./actions";
-import { useEffect } from "react";
 import {
   MapClickHandler,
   SelectedPoint,
