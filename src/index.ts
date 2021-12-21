@@ -25,7 +25,7 @@ interface CesiumViewProps {
 
 const CesiumView = (props: CesiumViewProps) => {
   const {
-    terrainExaggeration = 1.00001,
+    terrainExaggeration = 1,
     terrainProvider,
     children,
     showInspector,

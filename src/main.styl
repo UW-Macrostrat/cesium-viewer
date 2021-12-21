@@ -17,10 +17,23 @@
   div.navigation-control[title="Reset View"]
     display none
 
-  div.distance-legend
-    border-radius 0px
-    bottom 0
-    right 0
-
   .cesium-credit-logoContainer
     display: none !important
+
+  .cesium-viewer
+    .distance-legend
+      border-radius 0px
+      bottom 0
+      right 0
+      background: transparent !important
+      border: none !important
+
+      .distance-legend-scale-bar
+        border-left-color: white
+        border-right-color: white
+        border-bottom-color: white
+        border-width: 2px
+
+      .distance-legend-label
+        font-family: var(--main-font)
+        font-weight 500
