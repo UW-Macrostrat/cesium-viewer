@@ -12,13 +12,14 @@ import {
   CameraPositioner,
   CameraParams,
   flyToParams,
+  MapChangeTrackerProps,
 } from "./position";
 import { ViewInspector } from "./inspector";
 import { Fog, Globe, Scene } from "resium";
 import { terrainProvider } from "./layers";
 import { CameraFlyToProps } from "resium/dist/CameraFlyTo/CameraFlyTo";
 import { useEffect, useState } from "react";
-interface CesiumViewProps {
+interface CesiumViewProps extends Partial<MapChangeTrackerProps> {
   displayQuality: DisplayQuality;
   flyTo: CameraFlyToProps;
   initialPosition: CameraParams;
@@ -74,7 +75,7 @@ const CesiumView = (props: CesiumViewProps) => {
         null
       ),
       h(Scene, { requestRenderMode: true }),
-      h(MapChangeTracker, { onViewChange }),
+      h.if(onViewChange != null)(MapChangeTracker, { onViewChange }),
       children,
       h.if(onClick != null)(MapClickHandler, { onClick }),
       h(CameraPositioner, mapPosParams),

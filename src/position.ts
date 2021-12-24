@@ -182,11 +182,11 @@ function flyToParams(pos: CameraParams, rest: any = {}) {
   };
 }
 
-const MapChangeTracker = ({
-  onViewChange,
-}: {
-  onViewChange(): CameraParams;
-}) => {
+export type MapChangeTrackerProps = {
+  onViewChange: (view: ViewInfo) => void;
+};
+
+const MapChangeTracker = ({ onViewChange }: MapChangeTrackerProps) => {
   const { viewer } = useCesium();
   const onMoveEnd = () => {
     let params = getPosition(viewer);
