@@ -1,5 +1,5 @@
 import {
-  nadirCameraPosition,
+  nadirCameraParams,
   ViewData,
   CameraParams,
   flyToParams,
@@ -112,7 +112,7 @@ interface GlobeState {
   namedLocation: string | null;
 }
 
-const destination = nadirCameraPosition(77.433, 18.411, 9);
+const destination = nadirCameraParams(77.433, 18.411, 9);
 
 const initialState: GlobeState = {
   positions: {},

@@ -10,7 +10,7 @@ import {
   CameraFlyTo,
   Camera,
 } from "resium";
-import { CameraFlyToProps } from "resium/dist/types/src/CameraFlyTo/CameraFlyTo";
+import { CameraFlyToProps } from "resium/dist/CameraFlyTo/CameraFlyTo";
 // import {
 //   queryMap,
 //   mapMoved
@@ -102,8 +102,19 @@ const SelectedPoint = (props: { point: GeographicLocation | null }) => {
   return h(Entity, { position, point: pointGraphics });
 };
 
-function nadirCameraPosition(x: number, y: number, z: number) {
-  return new Cesium.Cartesian3.fromDegrees(x, y, distanceForZoom(z));
+export function nadirCameraParams(
+  x: number,
+  y: number,
+  z: number
+): CameraParams {
+  return {
+    longitude: x,
+    latitude: y,
+    height: distanceForZoom(z),
+    heading: 0,
+    pitch: -90, // -90 is nadir
+    roll: 0,
+  };
 }
 
 const CameraPositioner = (props: CameraFlyToProps) => {
@@ -204,7 +215,6 @@ export {
   SelectedPoint,
   MapChangeTracker,
   CameraPositioner,
-  nadirCameraPosition,
   CameraParams,
   ViewInfo,
   flyToParams,

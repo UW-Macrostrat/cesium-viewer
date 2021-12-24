@@ -16,11 +16,12 @@ import {
 import { ViewInspector } from "./inspector";
 import { Fog, Globe, Scene } from "resium";
 import { terrainProvider } from "./layers";
-import { CameraFlyToProps } from "resium/dist/types/src/CameraFlyTo/CameraFlyTo";
+import { CameraFlyToProps } from "resium/dist/CameraFlyTo/CameraFlyTo";
 import { useEffect, useState } from "react";
 interface CesiumViewProps {
   displayQuality: DisplayQuality;
   flyTo: CameraFlyToProps;
+  initialPosition: CameraParams;
 }
 
 const CesiumView = (props: CesiumViewProps) => {
@@ -79,7 +80,7 @@ const CesiumView = (props: CesiumViewProps) => {
       h(CameraPositioner, mapPosParams),
       h(Fog, { density: 5e-5 }),
       //h(FlyToInitialPosition),
-      h(CameraPositioner),
+      //h(CameraPositioner),
       h(ViewInspector, { show: showInspector }),
     ]
   );
