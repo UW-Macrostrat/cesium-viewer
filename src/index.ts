@@ -14,7 +14,7 @@ import {
   flyToParams,
   MapChangeTrackerProps,
 } from "./position";
-import { ViewInspector } from "./inspector";
+import { ViewInspector, TileLoadWatcher } from "./inspector";
 import { Fog, Globe, Scene } from "resium";
 import { terrainProvider } from "./layers";
 import { CameraFlyToProps } from "resium/dist/CameraFlyTo/CameraFlyTo";
@@ -23,6 +23,7 @@ interface CesiumViewProps extends Partial<MapChangeTrackerProps> {
   displayQuality: DisplayQuality;
   flyTo: CameraFlyToProps;
   initialPosition: CameraParams;
+  onTileLoadEvent?: (tilesLoaded: number) => void;
 }
 
 const CesiumView = (props: CesiumViewProps) => {
@@ -34,6 +35,7 @@ const CesiumView = (props: CesiumViewProps) => {
     displayQuality = DisplayQuality.Low,
     onClick,
     onViewChange,
+    onTileLoadEvent,
     initialPosition,
     flyTo,
     skyBox = false,
@@ -82,6 +84,9 @@ const CesiumView = (props: CesiumViewProps) => {
       h(Fog, { density: 5e-5 }),
       //h(FlyToInitialPosition),
       //h(CameraPositioner),
+      h.if(onTileLoadEvent != null)(TileLoadWatcher, {
+        onLoadEvent: onTileLoadEvent,
+      }),
       h(ViewInspector, { show: showInspector }),
     ]
   );
