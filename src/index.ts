@@ -58,7 +58,7 @@ const CesiumView = (props: CesiumViewProps) => {
       terrainProvider,
       // not sure why we have to do this...
       terrainExaggeration,
-      highResolution: displayQuality == DisplayQuality.High,
+      highResolution: true, // displayQuality == DisplayQuality.High,
       skyBox,
       //skyBox: false,
       //terrainShadows: Cesium.ShadowMode.ENABLED
@@ -71,7 +71,7 @@ const CesiumView = (props: CesiumViewProps) => {
           enableLighting: false,
           showGroundAtmosphere: true,
           maximumScreenSpaceError:
-            displayQuality == DisplayQuality.High ? 1.5 : 2,
+            displayQuality == DisplayQuality.High ? 2 : 4,
           //shadowMode: Cesium.ShadowMode.ENABLED
         },
         null
