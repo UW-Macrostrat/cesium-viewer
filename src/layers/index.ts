@@ -6,7 +6,7 @@ import {
 } from "cesium";
 import h from "@macrostrat/hyper";
 import { ImageryLayer } from "resium";
-import { useSelector } from "react-redux";
+import { useAppState, MapLayer } from "~/map-interface/app-state";
 
 type GeoLayerProps = Omit<
   ComponentProps<typeof ImageryLayer>,
@@ -14,7 +14,9 @@ type GeoLayerProps = Omit<
 >;
 
 const GeologyLayer = (props: GeoLayerProps) => {
-  const hasGeology = useSelector((state) => state.update.mapHasBedrock);
+  const hasGeology = useAppState((state) =>
+    state.core.mapLayers.has(MapLayer.BEDROCK)
+  );
 
   let geology = useRef(
     new WebMapTileServiceImageryProvider({
