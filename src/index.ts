@@ -1,8 +1,6 @@
 import "cesiumSource/Widgets/widgets.css";
 import * as Cesium from "cesiumSource/Cesium";
-import { hyperStyled } from "@macrostrat/hyper";
-import styles from "./main.styl";
-const h = hyperStyled(styles);
+import h from "@macrostrat/hyper";
 import { GlobeViewer } from "./viewer";
 import { DisplayQuality } from "./actions";
 import {
@@ -16,7 +14,6 @@ import {
 } from "./position";
 import { ViewInspector, TileLoadWatcher } from "./inspector";
 import { Fog, Globe, Scene } from "resium";
-import { terrainProvider } from "./layers";
 import { CameraFlyToProps } from "resium/dist/CameraFlyTo/CameraFlyTo";
 import { useEffect, useState } from "react";
 interface CesiumViewProps extends Partial<MapChangeTrackerProps> {
@@ -25,6 +22,15 @@ interface CesiumViewProps extends Partial<MapChangeTrackerProps> {
   initialPosition: CameraParams;
   onTileLoadEvent?: (tilesLoaded: number) => void;
 }
+
+const defaultPosition: CameraParams = {
+  longitude: 0,
+  latitude: 0,
+  height: 540000,
+  heading: 0,
+  pitch: -90,
+  roll: 0,
+};
 
 const CesiumView = (props: CesiumViewProps) => {
   const {

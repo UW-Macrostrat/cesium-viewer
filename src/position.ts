@@ -1,5 +1,3 @@
-import { useSelector, useDispatch } from "react-redux";
-import { useCallback } from "react";
 import * as Cesium from "cesiumSource/Cesium";
 import h from "@macrostrat/hyper";
 import {
@@ -11,10 +9,6 @@ import {
   Camera,
 } from "resium";
 import { CameraFlyToProps } from "resium/dist/CameraFlyTo/CameraFlyTo";
-// import {
-//   queryMap,
-//   mapMoved
-// } from '../../actions'
 
 const MARS_RADIUS_SCALAR = 3390 / 6371;
 
@@ -47,18 +41,18 @@ const zoomForDistance = (distance: number) => {
 
 const MapClickHandler = ({ onClick, pickFeatures = false }) => {
   const { viewer } = useCesium();
-  const dispatch = useDispatch();
+  //const dispatch = useDispatch();
   if (onClick == null) return null;
 
   const clickPoint = (movement) => {
     const ray = viewer.camera.getPickRay(movement.position);
     var cartesian = viewer.scene.globe.pick(ray, viewer.scene);
 
-    if (pickFeatures) {
-      viewer.scene.imageryLayers
-        ?.pickImageryLayerFeatures(ray, viewer.scene)
-        ?.then((features) => dispatch({ type: "pick-features", features }));
-    }
+    // if (pickFeatures) {
+    //   viewer.scene.imageryLayers
+    //     ?.pickImageryLayerFeatures(ray, viewer.scene)
+    //     ?.then((features) => dispatch({ type: "pick-features", features }));
+    // }
     //var cartesian = viewer.scene.pickPosition(movement.position);
 
     var cartographic = Cesium.Cartographic.fromCartesian(cartesian);
@@ -167,6 +161,7 @@ const getPosition = (viewer: Cesium.Viewer): ViewInfo => {
 };
 
 function flyToParams(pos: CameraParams, rest: any = {}) {
+  if (pos == undefined) return undefined;
   return {
     destination: Cesium.Cartesian3.fromDegrees(
       pos.longitude,

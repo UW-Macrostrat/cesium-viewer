@@ -1,12 +1,8 @@
 import h from "@macrostrat/hyper";
 import { FormGroup, NumericInput, Switch } from "@blueprintjs/core";
-import { useDispatch, useSelector } from "react-redux";
 import { DisplayQuality } from "./actions";
 
-const GlobeSettings = () => {
-  const dispatch = useDispatch();
-  const state = useSelector((s) => s.globe);
-
+const GlobeSettings = ({ dispatch, state }) => {
   return h("div.globe-settings", [
     h(
       FormGroup,

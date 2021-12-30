@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@znemz/cesium-navigation": "^4.0.0",
     "cesium": "^1.81.0",
     "resium": "^1.13.1"
   }
