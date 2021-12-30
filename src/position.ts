@@ -8,6 +8,7 @@ import {
   CameraFlyTo,
   Camera,
 } from "resium";
+import { useState, useCallback, useEffect } from "react";
 import { CameraFlyToProps } from "resium/dist/CameraFlyTo/CameraFlyTo";
 
 const MARS_RADIUS_SCALAR = 3390 / 6371;
@@ -23,7 +24,7 @@ interface CameraParams {
   roll: number;
 }
 
-type ViewInfo = {
+export type ViewInfo = {
   camera: CameraParams;
   viewCenter: Position;
 };
@@ -111,12 +112,6 @@ export function nadirCameraParams(
   };
 }
 
-const CameraPositioner = (props: CameraFlyToProps) => {
-  const { destination, ...rest } = props;
-  if (destination == null) return null;
-  return h(CameraFlyTo, { destination, ...rest });
-};
-
 const getMapCenter = (viewer: Cesium.Viewer): Position => {
   const centerPx = new Cesium.Cartesian2(
     viewer.container.clientWidth / 2,
@@ -177,19 +172,40 @@ function flyToParams(pos: CameraParams, rest: any = {}) {
   };
 }
 
-export type MapChangeTrackerProps = {
+export type MapChangeTrackerProps = CameraFlyToProps & {
   onViewChange: (view: ViewInfo) => void;
 };
 
-const MapChangeTracker = ({ onViewChange }: MapChangeTrackerProps) => {
+function CameraPositioner({
+  destination,
+  onViewChange,
+  ...rest
+}: MapChangeTrackerProps) {
   const { viewer } = useCesium();
-  const onMoveEnd = () => {
+  const [inRequestedFlight, setInRequestedFlight] = useState(false);
+
+  useEffect(() => {
+    // Adjust frustrum to match Mapbox GL JS camera settings
+    viewer.camera.frustum.fov = Math.PI / 4.8;
+  }, [viewer]);
+
+  useEffect(() => {
+    setInRequestedFlight(true);
+    viewer.camera.flyTo({ destination, ...rest });
+  }, [destination]);
+
+  const onMoveEnd = useCallback(() => {
+    if (inRequestedFlight) {
+      setInRequestedFlight(false);
+      return;
+    }
     let params = getPosition(viewer);
     onViewChange(params);
-  };
+  }, [inRequestedFlight, onViewChange, viewer]);
+
   // should also use onChange...
   return h(Camera, { onMoveEnd });
-};
+}
 
 // We should be able to specify a unique viewpoint using 5 parameters as follows
 // x=50&y=40&h=500&i=0&a=0
@@ -208,10 +224,8 @@ OR h: height above datum (absolute camera ref)
 export {
   MapClickHandler,
   SelectedPoint,
-  MapChangeTracker,
   CameraPositioner,
   CameraParams,
-  ViewInfo,
   flyToParams,
   MARS_RADIUS_SCALAR,
   GeographicLocation,

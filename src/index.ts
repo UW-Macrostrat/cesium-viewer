@@ -11,6 +11,7 @@ import {
   CameraParams,
   flyToParams,
   MapChangeTrackerProps,
+  ViewInfo,
 } from "./position";
 import { ViewInspector, TileLoadWatcher } from "./inspector";
 import { Fog, Globe, Scene } from "resium";
@@ -21,6 +22,7 @@ interface CesiumViewProps extends Partial<MapChangeTrackerProps> {
   flyTo: CameraFlyToProps;
   initialPosition: CameraParams;
   onTileLoadEvent?: (tilesLoaded: number) => void;
+  onViewChange?: (view: ViewInfo) => void;
 }
 
 const defaultPosition: CameraParams = {
@@ -53,7 +55,7 @@ const CesiumView = (props: CesiumViewProps) => {
   );
 
   useEffect(() => {
-    console.log("Setting map position", flyTo);
+    console.log("Setting globe position", flyTo);
     if (flyTo == null) return;
     setMapPosParams(flyTo);
   }, [flyTo]);
@@ -83,10 +85,9 @@ const CesiumView = (props: CesiumViewProps) => {
         null
       ),
       h(Scene, { requestRenderMode: true }),
-      h.if(onViewChange != null)(MapChangeTracker, { onViewChange }),
+      h(CameraPositioner, { ...mapPosParams, onViewChange }),
       children,
       h.if(onClick != null)(MapClickHandler, { onClick }),
-      h(CameraPositioner, mapPosParams),
       h(Fog, { density: 5e-5 }),
       //h(FlyToInitialPosition),
       //h(CameraPositioner),
