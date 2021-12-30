@@ -79,7 +79,7 @@ const CesiumView = (props: CesiumViewProps) => {
           enableLighting: false,
           showGroundAtmosphere: true,
           maximumScreenSpaceError:
-            displayQuality == DisplayQuality.High ? 2 : 4,
+            displayQuality == DisplayQuality.High ? 1.5 : 3,
           //shadowMode: Cesium.ShadowMode.ENABLED
         },
         null

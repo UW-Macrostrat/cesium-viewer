@@ -48,10 +48,14 @@ const GlobeViewer = (props: GlobeViewerProps) => {
   useEffect(() => {
     const { cesiumElement } = ref.current ?? {};
     if (cesiumElement == null) return;
-    cesiumElement.extend(NavigationMixin, { distanceLabelFormatter: undefined });
+    cesiumElement.extend(NavigationMixin, {
+      distanceLabelFormatter: undefined,
+    });
     cesiumElement.scene.requestRenderMode = true;
     cesiumElement.scene.maximumRenderTimeChange = Infinity;
     cesiumElement.scene.screenSpaceCameraController.minimumZoomDistance = 2;
+    //cesiumElement.scene.farToNearRatio = 0.5;
+    //cesiumElement.scene.logarithmicDepthFarToNearRatio = 1e15;
     //cesiumElement.scene.debugShowFramesPerSecond = true;
     //ref.current.cesiumElement.extend(Cesium.viewerCesiumInspectorMixin, {});
   }, [ref]);
