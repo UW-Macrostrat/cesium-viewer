@@ -34,6 +34,7 @@ type SetMapLayer = {
 enum DisplayQuality {
   High = "high",
   Low = "low",
+  Ultra = "ultra",
 }
 
 type QueryGlobe = {

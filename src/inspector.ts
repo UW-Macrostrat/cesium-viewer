@@ -56,3 +56,12 @@ export function TileLoadWatcher({ onLoadEvent, onTilesLoaded = null }) {
 
   return null;
 }
+
+export function Wireframe({ enabled = false }) {
+  const { viewer } = useCesium();
+  useEffect(() => {
+    viewer.scene.globe._surface._tileProvider._debug.wireframe = enabled;
+    viewer.scene.requestRender();
+  }, [viewer, enabled]);
+  return null;
+}

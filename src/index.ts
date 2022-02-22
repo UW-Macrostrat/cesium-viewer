@@ -13,7 +13,7 @@ import {
   MapChangeTrackerProps,
   ViewInfo,
 } from "./position";
-import { ViewInspector, TileLoadWatcher } from "./inspector";
+import { ViewInspector, TileLoadWatcher, Wireframe } from "./inspector";
 import { Fog, Globe, Scene } from "resium";
 import { CameraFlyToProps } from "resium/dist/CameraFlyTo/CameraFlyTo";
 import { useEffect, useState } from "react";
@@ -21,6 +21,8 @@ interface CesiumViewProps extends Partial<MapChangeTrackerProps> {
   displayQuality: DisplayQuality;
   flyTo: CameraFlyToProps;
   initialPosition: CameraParams;
+  showInspector?: boolean;
+  showWireframe?: boolean;
   onTileLoadEvent?: (tilesLoaded: number) => void;
   onViewChange?: (view: ViewInfo) => void;
 }
@@ -34,12 +36,19 @@ const defaultPosition: CameraParams = {
   roll: 0,
 };
 
+const screenSpaceErrors = {
+  [DisplayQuality.Low]: 4,
+  [DisplayQuality.High]: 2,
+  [DisplayQuality.Ultra]: 1,
+};
+
 const CesiumView = (props: CesiumViewProps) => {
   const {
     terrainExaggeration = 1,
     terrainProvider,
     children,
     showInspector,
+    showWireframe,
     displayQuality = DisplayQuality.Low,
     onClick,
     onViewChange,
@@ -66,7 +75,7 @@ const CesiumView = (props: CesiumViewProps) => {
       terrainProvider,
       // not sure why we have to do this...
       terrainExaggeration,
-      highResolution: displayQuality == DisplayQuality.High,
+      highResolution: displayQuality != DisplayQuality.Low,
       skyBox,
       //skyBox: false,
       //terrainShadows: Cesium.ShadowMode.ENABLED
@@ -78,8 +87,7 @@ const CesiumView = (props: CesiumViewProps) => {
           baseColor: Cesium.Color.LIGHTGRAY,
           enableLighting: false,
           showGroundAtmosphere: true,
-          maximumScreenSpaceError:
-            displayQuality == DisplayQuality.High ? 2 : 4,
+          maximumScreenSpaceError: screenSpaceErrors[displayQuality],
           //shadowMode: Cesium.ShadowMode.ENABLED
         },
         null
@@ -88,6 +96,7 @@ const CesiumView = (props: CesiumViewProps) => {
       h(CameraPositioner, { ...mapPosParams, onViewChange }),
       children,
       h.if(onClick != null)(MapClickHandler, { onClick }),
+      h.if(showWireframe != null)(Wireframe, { enabled: showWireframe }),
       h(Fog, { density: 5e-5 }),
       //h(FlyToInitialPosition),
       //h(CameraPositioner),
