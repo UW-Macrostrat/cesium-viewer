@@ -1,6 +1,6 @@
 import {
   nadirCameraParams,
-  ViewData,
+  ViewInfo,
   CameraParams,
   flyToParams,
 } from "./position";
@@ -58,7 +58,7 @@ type SetDisplayQuality = {
 
 type SetCameraPosition = {
   type: "set-camera-position";
-  value: ViewData;
+  value: ViewParams;
 };
 
 type FlyToPosition = {
@@ -108,7 +108,7 @@ interface GlobeState {
   verticalExaggeration: number;
   displayQuality: DisplayQuality;
   mapLayer: ActiveMapLayer;
-  position: ViewData | null;
+  position: ViewInfo | null;
   flyToProps: Props<typeof CameraFlyTo>;
   namedLocation: string | null;
 }
@@ -121,6 +121,7 @@ const initialState: GlobeState = {
   displayQuality: DisplayQuality.Low,
   mapLayer: ActiveMapLayer.CTX,
   position: null,
+  // @ts-ignore
   flyToProps: { destination, duration: 0, once: true },
   namedLocation: null,
 };
@@ -131,6 +132,7 @@ const createInitialState = (args: Partial<GlobeState> = {}) => {
 };
 
 function isCameraParams(v: ViewParams): v is CameraParams {
+  // @ts-ignore
   return v.camera === undefined && v.mapLayer === undefined;
 }
 
@@ -153,6 +155,7 @@ const reducer = (state: GlobeState = initialState, action: GlobeAction) => {
       let newState: GlobeState = state;
       newState["mapLayer"] = mapLayer ?? initialState.mapLayer;
       if (camera != null) {
+        // @ts-ignore
         const value = flyToParams(camera, camera.extra);
         newState = reducer(state, { type: "fly-to", value });
       }

@@ -1,10 +1,19 @@
 {
   "name": "@macrostrat/cesium-viewer",
   "version": "1.0.0",
-  "description": "",
-  "module": "src/index.ts",
+  "description": "Base viewer for digital globes",
+  "type": "module",
+  "source": "src/index.ts",
+  "exports": {
+    "require": "./dist/index.cjs",
+    "default": "./dist/index.modern.js"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.module.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "microbundle",
+    "dev": "microbundle --watch"
   },
   "author": "",
   "license": "ISC",
@@ -12,5 +21,9 @@
     "@znemz/cesium-navigation": "^4.0.0",
     "cesium": "^1.81.0",
     "resium": "^1.13.1"
+  },
+  "devDependencies": {
+    "microbundle": "^0.14.2",
+    "sass": "^1.49.8"
   }
 }

@@ -1,12 +1,11 @@
-import "cesiumSource/Widgets/widgets.css";
-import * as Cesium from "cesiumSource/Cesium";
+import "cesium/Source/Widgets/widgets.css";
+//import * as Cesium from "cesiumSource/Cesium";
 import h from "@macrostrat/hyper";
-import { GlobeViewer } from "./viewer";
+import { GlobeViewer, MapboxLogo } from "./viewer";
 import { DisplayQuality } from "./actions";
 import {
   MapClickHandler,
   SelectedPoint,
-  MapChangeTracker,
   CameraPositioner,
   CameraParams,
   flyToParams,
@@ -17,15 +16,22 @@ import { ViewInspector, TileLoadWatcher, Wireframe } from "./inspector";
 import { Fog, Globe, Scene } from "resium";
 import { CameraFlyToProps } from "resium/dist/CameraFlyTo/CameraFlyTo";
 import { useEffect, useState } from "react";
-interface CesiumViewProps extends Partial<MapChangeTrackerProps> {
-  displayQuality: DisplayQuality;
-  flyTo: CameraFlyToProps;
-  initialPosition: CameraParams;
-  showInspector?: boolean;
-  showWireframe?: boolean;
-  onTileLoadEvent?: (tilesLoaded: number) => void;
-  onViewChange?: (view: ViewInfo) => void;
-}
+import { Color, TerrainProvider } from "cesium";
+
+type CesiumViewProps = Partial<MapChangeTrackerProps> &
+  React.ComponentProps<typeof GlobeViewer> & {
+    displayQuality: DisplayQuality;
+    flyTo: CameraFlyToProps;
+    initialPosition: CameraParams;
+    showInspector?: boolean;
+    showWireframe?: boolean;
+    terrainExaggeration?: number;
+    terrainProvider?: TerrainProvider;
+    onTileLoadEvent?: (tilesLoaded: number) => void;
+    onViewChange?: (view: ViewInfo) => void;
+    children?: React.ReactNode;
+    onClick?: (selectedPoint: any) => void;
+  };
 
 const defaultPosition: CameraParams = {
   longitude: 0,
@@ -79,12 +85,13 @@ const CesiumView = (props: CesiumViewProps) => {
       skyBox,
       //skyBox: false,
       //terrainShadows: Cesium.ShadowMode.ENABLED
+      ...rest,
     },
     [
       h(
         Globe,
         {
-          baseColor: Cesium.Color.LIGHTGRAY,
+          baseColor: Color.LIGHTGRAY,
           enableLighting: false,
           showGroundAtmosphere: true,
           maximumScreenSpaceError: screenSpaceErrors[displayQuality],
@@ -108,5 +115,5 @@ const CesiumView = (props: CesiumViewProps) => {
   );
 };
 
-export { DisplayQuality };
+export { DisplayQuality, MapboxLogo };
 export default CesiumView;

@@ -1,6 +1,5 @@
-import "cesiumSource/Widgets/widgets.css";
-import h from "@macrostrat/hyper";
-import { useEffect, useCallback, useState } from "react";
+import "cesium/Source/Widgets/widgets.css";
+import { useEffect, useCallback } from "react";
 import { useCesium } from "resium";
 import { viewerCesiumInspectorMixin } from "cesium";
 
@@ -8,12 +7,11 @@ export function ViewInspector(props) {
   const { viewer } = useCesium();
   const { show = false } = props;
   useEffect(() => {
-    // const el = document.querySelector(
-    //   ".cesium-viewer-cesiumInspectorContainer"
-    // ) as HTMLDivElement;
+    // @ts-ignore
     if (viewer.cesiumInspector == null && show) {
       viewer.extend(viewerCesiumInspectorMixin);
     }
+    // @ts-ignore
     const el = viewer.cesiumInspector;
     if (el == null) return;
 
@@ -60,6 +58,7 @@ export function TileLoadWatcher({ onLoadEvent, onTilesLoaded = null }) {
 export function Wireframe({ enabled = false }) {
   const { viewer } = useCesium();
   useEffect(() => {
+    // @ts-ignore
     viewer.scene.globe._surface._tileProvider._debug.wireframe = enabled;
     viewer.scene.requestRender();
   }, [viewer, enabled]);

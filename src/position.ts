@@ -1,4 +1,4 @@
-import * as Cesium from "cesiumSource/Cesium";
+import * as Cesium from "cesium";
 import h from "@macrostrat/hyper";
 import {
   ScreenSpaceEventHandler,
@@ -186,6 +186,7 @@ function CameraPositioner({
 
   useEffect(() => {
     // Adjust frustrum to match Mapbox GL JS camera settings
+    // @ts-ignore
     viewer.camera.frustum.fov = Math.PI / 4.8;
   }, [viewer]);
 

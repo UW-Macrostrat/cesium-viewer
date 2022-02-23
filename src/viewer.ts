@@ -1,29 +1,51 @@
 import { useEffect, useRef, ComponentProps } from "react";
 import h from "@macrostrat/hyper";
-import { Viewer, Scene, CesiumComponentRef } from "resium";
+import { CesiumComponentRef, useCesium, Viewer } from "resium";
+import { Viewer as CesiumViewer } from "cesium";
 import NavigationMixin, { Units } from "@znemz/cesium-navigation";
 import "@znemz/cesium-navigation/dist/index.css";
 
 import { format } from "d3-format";
-const Cesium: any = require("cesiumSource/Cesium");
+import * as Cesium from "cesium";
 
 const fmt = format(".0f");
 
-type GlobeViewerProps = ComponentProps<typeof Viewer> & {
+export type GlobeViewerProps = ComponentProps<typeof Viewer> & {
   highResolution: boolean;
-  showInspector: boolean;
+  //showInspector: boolean;
+  showIonLogo: boolean;
 };
 
 const mapProjectionMars = new Cesium.GeographicProjection(
+  // @ts-ignore
   Cesium.Ellipsoid.MARSIAU2000
 );
+// @ts-ignore
 const globeMars = new Cesium.Globe(Cesium.Ellipsoid.MARSIAU2000);
 
+export function MapboxLogo() {
+  const { cesiumWidget } = useCesium();
+  useEffect(() => {
+    const el = cesiumWidget?.creditContainer;
+    const a = document.createElement("a");
+    a.href = "https://www.mapbox.com/";
+    a.target = "_blank";
+    a.className = "mapbox-logo";
+    el.prepend(a);
+    return () => {
+      const a = el.querySelector(".mapbox-logo");
+      el.removeChild(a);
+    };
+  }, [cesiumWidget]);
+  return null;
+}
+
 const GlobeViewer = (props: GlobeViewerProps) => {
-  const ref = useRef<CesiumComponentRef<Cesium.Viewer>>(null);
+  const ref = useRef<CesiumComponentRef<CesiumViewer>>(null);
   const {
     highResolution = false,
-    showInspector = false,
+    //showInspector = false,
+    showIonLogo = true,
     children,
     ...rest
   } = props;
@@ -32,6 +54,7 @@ const GlobeViewer = (props: GlobeViewerProps) => {
   if (highResolution) {
     resolutionScale = Math.min(window.devicePixelRatio ?? 1, 2);
   }
+
   useEffect(() => {
     const { cesiumElement } = ref.current ?? {};
     if (cesiumElement == null) return;
@@ -60,12 +83,24 @@ const GlobeViewer = (props: GlobeViewerProps) => {
     //ref.current.cesiumElement.extend(Cesium.viewerCesiumInspectorMixin, {});
   }, [ref]);
 
+  // useEffect(() => {
+  //   const viewer = ref.current.cesiumElement;
+  //   if (viewer == null) return;
+  //   if (showInspector) {
+  //     viewer.extend(Cesium.viewerCesiumInspectorMixin, {});
+  //   }
+  // }, [showInspector]);
+
   useEffect(() => {
-    if (ref.current.cesiumElement == null) return;
-    if (showInspector) {
-      ref.current.cesiumElement.extend(Cesium.viewerCesiumInspectorMixin, {});
-    }
-  }, [showInspector]);
+    const viewer = ref.current.cesiumElement;
+    const el = viewer?.cesiumWidget.creditContainer.querySelector(
+      ".cesium-credit-logoContainer"
+    );
+    //debugger;
+    if (el == null) return;
+    // @ts-ignore
+    el.style.display = showIonLogo ? "inline" : "none";
+  }, [ref, showIonLogo]);
 
   //Cesium.Ellipsoid.MARSIAU2000
   const ellipsoid = undefined;
@@ -86,7 +121,7 @@ const GlobeViewer = (props: GlobeViewerProps) => {
       scene3DOnly: true,
       vrButton: false,
       geocoder: false,
-      resolutionScale: false,
+      resolutionScale,
       selectionIndicator: false,
       //skyAtmosphere: true,
       animation: false,
