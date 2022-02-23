@@ -1,4 +1,4 @@
-import "cesium/Source/Widgets/widgets.css";
+//import "cesium/Source/Widgets/widgets.css";
 import { useEffect, useCallback } from "react";
 import { useCesium } from "resium";
 import { viewerCesiumInspectorMixin } from "cesium";

@@ -1,4 +1,3 @@
-import "cesium/Source/Widgets/widgets.css";
 //import * as Cesium from "cesiumSource/Cesium";
 import h from "@macrostrat/hyper";
 import { GlobeViewer, MapboxLogo } from "./viewer";
@@ -17,6 +16,7 @@ import { Fog, Globe, Scene } from "resium";
 import { CameraFlyToProps } from "resium/dist/CameraFlyTo/CameraFlyTo";
 import { useEffect, useState } from "react";
 import { Color, TerrainProvider } from "cesium";
+import "./main.sass";
 
 type CesiumViewProps = Partial<MapChangeTrackerProps> &
   React.ComponentProps<typeof GlobeViewer> & {
@@ -115,5 +115,6 @@ const CesiumView = (props: CesiumViewProps) => {
   );
 };
 
+export * from "./position";
 export { DisplayQuality, MapboxLogo };
 export default CesiumView;
