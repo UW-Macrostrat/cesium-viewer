@@ -20,5 +20,9 @@
   "devDependencies": {
     "microbundle": "^0.14.2",
     "sass": "^1.49.8"
+  },
+  "peerDependencies": {
+    "react": "^16||^17",
+    "react-dom": "^16||^17"
   }
 }

@@ -3,7 +3,6 @@ import h from "@macrostrat/hyper";
 import { CesiumComponentRef, useCesium, Viewer } from "resium";
 import { Viewer as CesiumViewer } from "cesium";
 import NavigationMixin, { Units } from "@znemz/cesium-navigation";
-import "@znemz/cesium-navigation/dist/index.css";
 
 import { format } from "d3-format";
 import * as Cesium from "cesium";
