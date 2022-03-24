@@ -16,7 +16,7 @@ import { Fog, Globe, Scene } from "resium";
 import { CameraFlyToProps } from "resium/src/CameraFlyTo/CameraFlyTo";
 import { useEffect, useState } from "react";
 import { Color, TerrainProvider } from "cesium";
-import "./main.sass";
+import "./main.module.sass";
 
 type CesiumViewProps = Partial<MapChangeTrackerProps> &
   React.ComponentProps<typeof GlobeViewer> & {

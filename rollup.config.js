@@ -29,7 +29,9 @@ export default {
     resolve({ extensions, module: true }),
     postcss({
       // postfix with .module.css etc. for css modules (DISABLED)
-      modules: true,
+      modules: {
+        generateScopedName: "[name]__[local]___[hash:base64:5]",
+      },
       autoModules: true,
       namedExports: true,
       // CSS cannot be extracted outside of the bundle directory for rollup v2.
