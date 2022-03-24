@@ -13,15 +13,10 @@ import {
 } from "./position";
 import { ViewInspector, TileLoadWatcher, Wireframe } from "./inspector";
 import { Fog, Globe, Scene } from "resium";
-import { CameraFlyToProps } from "resium/dist/CameraFlyTo/CameraFlyTo";
+import { CameraFlyToProps } from "resium/src/CameraFlyTo/CameraFlyTo";
 import { useEffect, useState } from "react";
 import { Color, TerrainProvider } from "cesium";
 import "./main.sass";
-
-import ReactDOM from "react-dom";
-import React2 from "react";
-// @ts-ignore
-console.log(window.React1 === React2);
 
 type CesiumViewProps = Partial<MapChangeTrackerProps> &
   React.ComponentProps<typeof GlobeViewer> & {

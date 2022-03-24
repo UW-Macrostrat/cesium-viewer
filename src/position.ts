@@ -9,7 +9,7 @@ import {
   Camera,
 } from "resium";
 import { useState, useCallback, useEffect } from "react";
-import { CameraFlyToProps } from "resium/dist/CameraFlyTo/CameraFlyTo";
+import { CameraFlyToProps } from "resium/src/CameraFlyTo/CameraFlyTo";
 
 const MARS_RADIUS_SCALAR = 3390 / 6371;
 
