@@ -1,66 +1,136 @@
 import { useEffect, useRef, ComponentProps } from "react";
 import h from "@macrostrat/hyper";
-import { Viewer, CesiumComponentRef } from "resium";
-import NavigationMixin from "@znemz/cesium-navigation";
-import "@znemz/cesium-navigation/dist/index.css";
-import { viewerCesiumInspectorMixin } from "cesiumSource/Cesium";
+import { CesiumComponentRef, useCesium, Viewer } from "resium";
+import { Viewer as CesiumViewer } from "cesium";
+import NavigationMixin, { Units } from "@znemz/cesium-navigation";
 
-type GlobeViewerProps = ComponentProps<typeof Viewer> & {
+import { format } from "d3-format";
+import * as Cesium from "cesium";
+
+const fmt = format(".0f");
+
+export type GlobeViewerProps = ComponentProps<typeof Viewer> & {
   highResolution: boolean;
-  showInspector: boolean;
+  //showInspector: boolean;
+  showIonLogo: boolean;
 };
 
+const mapProjectionMars = new Cesium.GeographicProjection(
+  // @ts-ignore
+  Cesium.Ellipsoid.MARSIAU2000
+);
+// @ts-ignore
+const globeMars = new Cesium.Globe(Cesium.Ellipsoid.MARSIAU2000);
+
+export function MapboxLogo() {
+  const { cesiumWidget } = useCesium();
+  useEffect(() => {
+    const el = cesiumWidget?.creditContainer;
+    const a = document.createElement("a");
+    a.href = "https://www.mapbox.com/";
+    a.target = "_blank";
+    a.className = "mapbox-logo";
+    el.prepend(a);
+    return () => {
+      const a = el.querySelector(".mapbox-logo");
+      el.removeChild(a);
+    };
+  }, [cesiumWidget]);
+  return null;
+}
+
 const GlobeViewer = (props: GlobeViewerProps) => {
-  const ref = useRef<CesiumComponentRef<Cesium.Viewer>>(null);
-  const { highResolution, showInspector = false, ...rest } = props;
+  const ref = useRef<CesiumComponentRef<CesiumViewer>>(null);
+  const {
+    highResolution = false,
+    //showInspector = false,
+    showIonLogo = true,
+    children,
+    ...rest
+  } = props;
 
   let resolutionScale = 1;
   if (highResolution) {
     resolutionScale = Math.min(window.devicePixelRatio ?? 1, 2);
   }
+
   useEffect(() => {
     const { cesiumElement } = ref.current ?? {};
     if (cesiumElement == null) return;
-
-    ref.current.cesiumElement.resolutionScale = resolutionScale;
-
+    try {
+      cesiumElement.scene;
+    } catch {
+      return;
+    }
+    cesiumElement.resolutionScale = resolutionScale;
     // Enable anti-aliasing
-    ref.current.cesiumElement.scene.postProcessStages.fxaa.enabled = true;
+    cesiumElement.scene.postProcessStages.fxaa.enabled = true;
   }, [resolutionScale]);
 
   useEffect(() => {
     const { cesiumElement } = ref.current ?? {};
     if (cesiumElement == null) return;
-    ref.current.cesiumElement.extend(NavigationMixin, {});
-  }, []);
+    cesiumElement.extend(NavigationMixin, {
+      distanceLabelFormatter: undefined,
+    });
+    cesiumElement.scene.requestRenderMode = true;
+    cesiumElement.scene.maximumRenderTimeChange = Infinity;
+    cesiumElement.scene.screenSpaceCameraController.minimumZoomDistance = 2;
+    //cesiumElement.scene.farToNearRatio = 0.5;
+    //cesiumElement.scene.logarithmicDepthFarToNearRatio = 1e15;
+    //cesiumElement.scene.debugShowFramesPerSecond = true;
+    //ref.current.cesiumElement.extend(Cesium.viewerCesiumInspectorMixin, {});
+  }, [ref]);
+
+  // useEffect(() => {
+  //   const viewer = ref.current.cesiumElement;
+  //   if (viewer == null) return;
+  //   if (showInspector) {
+  //     viewer.extend(Cesium.viewerCesiumInspectorMixin, {});
+  //   }
+  // }, [showInspector]);
 
   useEffect(() => {
-    if (ref.current.cesiumElement == null) return;
-    if (showInspector) {
-      ref.current.cesiumElement.extend(viewerCesiumInspectorMixin);
-    }
-  }, [showInspector]);
+    const viewer = ref.current.cesiumElement;
+    const el = viewer?.cesiumWidget.creditContainer.querySelector(
+      ".cesium-credit-logoContainer"
+    );
+    //debugger;
+    if (el == null) return;
+    // @ts-ignore
+    el.style.display = showIonLogo ? "inline" : "none";
+  }, [ref, showIonLogo]);
 
-  return h(Viewer, {
-    ref,
-    full: true,
-    baseLayerPicker: false,
-    fullscreenButton: false,
-    homeButton: false,
-    infoBox: false,
-    navigationInstructionsInitiallyVisible: false,
-    navigationHelpButton: false,
-    scene3DOnly: true,
-    vrButton: false,
-    geocoder: false,
-    //resolutionScale,
-    //skyAtmosphere: true,
-    animation: false,
-    timeline: false,
-    imageryProvider: false,
-    //shadows: true,
-    ...rest,
-  });
+  //Cesium.Ellipsoid.MARSIAU2000
+  const ellipsoid = undefined;
+
+  return h(
+    Viewer,
+    {
+      ref,
+      full: true,
+      baseLayerPicker: false,
+      fullscreenButton: false,
+      //mapProjection: new Cesium.GeographicProjection(ellipsoid),
+      //globe: new Cesium.Globe(ellipsoid),
+      homeButton: false,
+      infoBox: false,
+      navigationInstructionsInitiallyVisible: false,
+      navigationHelpButton: true,
+      scene3DOnly: true,
+      vrButton: false,
+      geocoder: false,
+      resolutionScale,
+      selectionIndicator: false,
+      //skyAtmosphere: true,
+      animation: false,
+      timeline: false,
+      imageryProvider: false,
+      //shadows: true,
+      ...rest,
+    },
+    children
+  );
 };
 
 export { GlobeViewer };

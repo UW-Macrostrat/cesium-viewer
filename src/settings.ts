@@ -1,12 +1,8 @@
 import h from "@macrostrat/hyper";
 import { FormGroup, NumericInput, Switch } from "@blueprintjs/core";
-import { useDispatch, useSelector } from "react-redux";
 import { DisplayQuality } from "./actions";
 
-const GlobeSettings = (props) => {
-  const dispatch = useDispatch();
-  const state = useSelector((s) => s.globe);
-
+const GlobeSettings = ({ dispatch, state }) => {
   return h("div.globe-settings", [
     h(
       FormGroup,
@@ -22,9 +18,12 @@ const GlobeSettings = (props) => {
       FormGroup,
       { label: "High quality" },
       h(Switch, {
-        value: state.displayQuality,
-        onChange(isOn) {
-          const value = isOn ? DisplayQuality.HIGH : DisplayQuality.LOW;
+        checked: state.displayQuality == DisplayQuality.High,
+        onChange(evt) {
+          const value =
+            state.displayQuality == DisplayQuality.High
+              ? DisplayQuality.Low
+              : DisplayQuality.High;
           dispatch({ type: "set-display-quality", value });
         },
       })
@@ -33,9 +32,9 @@ const GlobeSettings = (props) => {
       FormGroup,
       { label: "Show inspector" },
       h(Switch, {
-        value: state.showInspector,
-        onChange(value) {
-          dispatch({ type: "set-show-inspector", value });
+        checked: state.showInspector,
+        onChange(evt) {
+          dispatch({ type: "set-show-inspector", value: !state.showInspector });
         },
       })
     ),

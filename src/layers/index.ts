@@ -6,7 +6,7 @@ import {
 } from "cesium";
 import h from "@macrostrat/hyper";
 import { ImageryLayer } from "resium";
-import { useSelector } from "react-redux";
+import { useAppState, MapLayer } from "~/map-interface/app-state";
 
 type GeoLayerProps = Omit<
   ComponentProps<typeof ImageryLayer>,
@@ -14,12 +14,13 @@ type GeoLayerProps = Omit<
 >;
 
 const GeologyLayer = (props: GeoLayerProps) => {
-  const hasGeology = useSelector((state) => state.update.mapHasBedrock);
+  const hasGeology = useAppState((state) =>
+    state.core.mapLayers.has(MapLayer.BEDROCK)
+  );
 
   let geology = useRef(
     new WebMapTileServiceImageryProvider({
-      url:
-        "https://macrostrat.org/api/v2/maps/burwell/emphasized/{TileMatrix}/{TileCol}/{TileRow}/tile.png",
+      url: "https://macrostrat.org/api/v2/maps/burwell/emphasized/{TileMatrix}/{TileCol}/{TileRow}/tile.png",
       style: "default",
       format: "image/png",
       maximumLevel: 19,
@@ -35,8 +36,6 @@ const GeologyLayer = (props: GeoLayerProps) => {
 };
 
 const SatelliteLayer = (props) => {
-  const hasSatellite = useSelector((state) => state.update.mapHasSatellite);
-
   let format = ".webp";
   if (window.devicePixelRatio >= 2) format = "@2x.webp";
 
@@ -48,8 +47,6 @@ const SatelliteLayer = (props) => {
       accessToken: process.env.MAPBOX_API_TOKEN,
     })
   );
-
-  if (!hasSatellite) return null;
 
   return h(ImageryLayer, { imageryProvider: satellite.current, ...props });
 };

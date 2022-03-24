@@ -3,7 +3,7 @@
 /*global require*/
 
 import defined from "cesiumSource/Core/defined";
-import VectorTile from "@mapbox/vector-tile";
+import { VectorTile } from "@mapbox/vector-tile";
 var Protobuf = require("pbf");
 var Point = require("@mapbox/point-geometry");
 import defaultValue from "cesiumSource/Core/defaultValue";
@@ -240,12 +240,9 @@ MapboxVectorTileImageryProvider.prototype._requestImage = function (
   var url = this._buildImageUrl(nativeTile.x, nativeTile.y, nativeTile.level);
 
   return loadArrayBuffer(url).then(function (data) {
-    return that._drawTile(
-      requestedTile,
-      nativeTile,
-      new VectorTile(new Protobuf(data)),
-      canvas
-    );
+    const buf = new Protobuf(data);
+    const tile = new VectorTile(buf);
+    return that._drawTile(requestedTile, nativeTile, tile, canvas);
   });
 };
 
@@ -293,7 +290,10 @@ MapboxVectorTileImageryProvider.prototype._drawTile = function (
   for (var i = 0; i < layer.length; i++) {
     var feature = layer.feature(i);
     if (feature.type === POLYGON_FEATURE) {
-      var style = this._styleFunc(feature.properties[this._uniqueIdProp]);
+      var style = this._styleFunc(
+        feature.properties[this._uniqueIdProp],
+        feature.properties
+      );
       if (!style) continue;
       context.fillStyle = style.fillStyle;
       context.strokeStyle = style.strokeStyle;
@@ -557,4 +557,4 @@ MapboxVectorTileImageryProvider.prototype.createHighlightImageryProvider = funct
   return imageryProvider;
 };
 
-module.exports = MapboxVectorTileImageryProvider;
+export { MapboxVectorTileImageryProvider };
