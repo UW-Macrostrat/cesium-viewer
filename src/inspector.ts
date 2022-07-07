@@ -1,8 +1,7 @@
 import "cesiumSource/Widgets/widgets.css";
-import { hyperStyled } from "@macrostrat/hyper";
-import styles from "./main.styl";
-const h = hyperStyled(styles);
-import { useEffect, useCallback, useState } from "react";
+import h from "@macrostrat/hyper";
+
+import { useEffect, useCallback } from "react";
 import { useCesium } from "resium";
 import { viewerCesiumInspectorMixin } from "cesium";
 

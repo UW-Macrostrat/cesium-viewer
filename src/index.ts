@@ -1,8 +1,8 @@
 import "cesiumSource/Widgets/widgets.css";
 import * as Cesium from "cesiumSource/Cesium";
-import { hyperStyled } from "@macrostrat/hyper";
-import styles from "./main.styl";
-const h = hyperStyled(styles);
+import h from "@macrostrat/hyper";
+//import styles from "./main.styl";
+//const h = hyperStyled(styles);
 import { GlobeViewer } from "./viewer";
 import { DisplayQuality } from "./actions";
 import {
@@ -71,7 +71,7 @@ const CesiumView = (props: CesiumViewProps) => {
           enableLighting: false,
           showGroundAtmosphere: true,
           maximumScreenSpaceError:
-            displayQuality == DisplayQuality.High ? 2 : 4,
+            displayQuality == DisplayQuality.High ? 1.5 : 2.5,
           //shadowMode: Cesium.ShadowMode.ENABLED
         },
         null
