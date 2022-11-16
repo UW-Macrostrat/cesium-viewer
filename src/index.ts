@@ -106,8 +106,6 @@ const CesiumView = (props: CesiumViewProps) => {
       h.if(onClick != null)(MapClickHandler, { onClick }),
       h.if(showWireframe != null)(Wireframe, { enabled: showWireframe }),
       h(Fog, { density: 5e-5 }),
-      //h(FlyToInitialPosition),
-      //h(CameraPositioner),
       h.if(onTileLoadEvent != null)(TileLoadWatcher, {
         onLoadEvent: onTileLoadEvent,
       }),

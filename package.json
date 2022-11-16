@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/cesium-viewer",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Base viewer for digital globes",
   "source": "src/index.ts",
   "main": "./dist/index.js",
@@ -8,12 +8,14 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "microbundle",
-    "dev": "microbundle --watch"
+    "dev": "microbundle --watch",
+    "prepare": "npm run build"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@macrostrat/hyper": "^2.0.1",
+    "@macrostrat/mapbox-utils": "^1.1.1",
     "@znemz/cesium-navigation": "^4.0.0",
     "cesium": "^1.81.0",
     "d3-format": "^3.1.0",

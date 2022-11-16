@@ -5,40 +5,15 @@ import {
   ScreenSpaceEvent,
   useCesium,
   Entity,
-  CameraFlyTo,
   Camera,
 } from "resium";
 import { useState, useCallback, useEffect } from "react";
 import { CameraFlyToProps } from "resium/src/CameraFlyTo/CameraFlyTo";
+import { zoomForDistance, nadirCameraParams, translateCameraPosition } from "./interop";
+import { Position, GeographicLocation, CameraParams, ViewInfo } from "./types";
 
 const MARS_RADIUS_SCALAR = 3390 / 6371;
 
-type Position = { x: number; y: number; z: number };
-
-interface CameraParams {
-  longitude: number;
-  latitude: number;
-  height: number;
-  heading: number;
-  pitch: number;
-  roll: number;
-}
-
-export type ViewInfo = {
-  camera: CameraParams;
-  viewCenter: Position;
-};
-
-const rangeAtZoom18 = 250; // ~ 250 m away
-
-const distanceForZoom = (zoom: number) => {
-  const zfac = 18 - zoom;
-  return rangeAtZoom18 * Math.pow(2, zfac);
-};
-
-const zoomForDistance = (distance: number) => {
-  return 18 - Math.log2(distance / rangeAtZoom18);
-};
 
 const MapClickHandler = ({ onClick, pickFeatures = false }) => {
   const { viewer } = useCesium();
@@ -76,10 +51,7 @@ const MapClickHandler = ({ onClick, pickFeatures = false }) => {
   ]);
 };
 
-type GeographicLocation = {
-  latitude: number;
-  longitude: number;
-};
+
 
 const SelectedPoint = (props: { point: GeographicLocation | null }) => {
   if (props.point == null) return null;
@@ -97,20 +69,6 @@ const SelectedPoint = (props: { point: GeographicLocation | null }) => {
   return h(Entity, { position, point: pointGraphics });
 };
 
-export function nadirCameraParams(
-  x: number,
-  y: number,
-  z: number
-): CameraParams {
-  return {
-    longitude: x,
-    latitude: y,
-    height: distanceForZoom(z),
-    heading: 0,
-    pitch: -90, // -90 is nadir
-    roll: 0,
-  };
-}
 
 const getMapCenter = (viewer: Cesium.Viewer): Position => {
   const centerPx = new Cesium.Cartesian2(
@@ -225,11 +183,14 @@ OR h: height above datum (absolute camera ref)
 */
 
 export {
+  ViewInfo,
+  CameraParams,
   MapClickHandler,
   SelectedPoint,
   CameraPositioner,
-  CameraParams,
   flyToParams,
   MARS_RADIUS_SCALAR,
   GeographicLocation,
+  translateCameraPosition,
+  nadirCameraParams
 };
