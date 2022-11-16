@@ -174,21 +174,23 @@ function flyToParams(pos: CameraParams, rest: any = {}) {
 
 export type MapChangeTrackerProps = CameraFlyToProps & {
   onViewChange: (view: ViewInfo) => void;
+  viewAngle?: number;
 };
 
 function CameraPositioner({
   destination,
   onViewChange,
+  viewAngle,
   ...rest
 }: MapChangeTrackerProps) {
   const { viewer } = useCesium();
   const [inRequestedFlight, setInRequestedFlight] = useState(false);
 
   useEffect(() => {
-    // Adjust frustrum to match Mapbox GL JS camera settings
+    // Adjust frustrum to match Mapbox GL JS camera settings by default
     // @ts-ignore
-    viewer.camera.frustum.fov = Math.PI / 4.8;
-  }, [viewer]);
+    viewer.camera.frustum.fov = viewAngle ?? (Math.PI / 4.8);
+  }, [viewer, viewAngle]);
 
   useEffect(() => {
     setInRequestedFlight(true);

@@ -62,6 +62,7 @@ const CesiumView = (props: CesiumViewProps) => {
     initialPosition,
     flyTo,
     skyBox = false,
+    viewAngle,
     ...rest
   } = props;
 
@@ -100,7 +101,7 @@ const CesiumView = (props: CesiumViewProps) => {
         null
       ),
       h(Scene, { requestRenderMode: true }),
-      h(CameraPositioner, { ...mapPosParams, onViewChange }),
+      h(CameraPositioner, { ...mapPosParams, onViewChange, viewAngle }),
       children,
       h.if(onClick != null)(MapClickHandler, { onClick }),
       h.if(showWireframe != null)(Wireframe, { enabled: showWireframe }),
