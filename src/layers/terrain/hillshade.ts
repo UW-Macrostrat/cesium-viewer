@@ -1,15 +1,24 @@
 import { useRef } from "react";
 import { MapboxImageryProvider } from "cesium";
 import h from "@macrostrat/hyper";
-import { ConstructorOptions, ImageryLayer } from "resium";
-import { useSelector } from "react-redux";
+import { ImageryLayer } from "resium";
 import REGL from "regl";
+import { Rectangle } from "cesium";
 import { vec3 } from "gl-matrix";
 import { terrainProvider } from "./provider";
 import axios from "axios";
 // https://wwwtyro.net/2019/03/21/advanced-map-shading.html
 
 type Img = HTMLImageElement | HTMLCanvasElement;
+
+type P = {
+  elevation: any;
+  pixelScale: number;
+  resolution: number[];
+  mask: any;
+  normals: any;
+  image: any;
+}
 
 function loadImage(url, imgSrc = null): Promise<HTMLImageElement> {
   const img = imgSrc ?? document.createElement("img");
@@ -73,13 +82,13 @@ function createRunner(tileSize = 256) {
       position: [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1],
     },
     uniforms: {
-      tElevation: regl.prop("image"),
+      tElevation: regl.prop<P, keyof P>("image"),
       elevationScale: 1,
       resolution,
     },
     viewport,
     count: 6,
-    framebuffer: regl.prop("elevation"),
+    framebuffer: regl.prop<P, keyof P>("elevation"),
   });
 
   const cmdNormal = regl({
@@ -116,13 +125,13 @@ function createRunner(tileSize = 256) {
       position: [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1],
     },
     uniforms: {
-      tElevation: regl.prop("elevation"),
-      pixelScale: regl.prop("pixelScale"),
+      tElevation: regl.prop<P, keyof P>("elevation"),
+      pixelScale: regl.prop<P, keyof P>("pixelScale"),
       resolution,
     },
     viewport,
     count: 6,
-    framebuffer: regl.prop("normals"),
+    framebuffer: regl.prop<P, keyof P>("normals"),
   });
 
   const cmdDirect = regl({
@@ -156,15 +165,15 @@ function createRunner(tileSize = 256) {
       position: [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1],
     },
     uniforms: {
-      tNormal: regl.prop("normals"),
-      tElevation: regl.prop("elevation"),
+      tNormal: regl.prop<P, keyof P>("normals"),
+      tElevation: regl.prop<P, keyof P>("elevation"),
       scale: [1, 1],
       resolution,
-      sunDirection: vec3.normalize([], [1, 1, 0.5]),
+      sunDirection: vec3.normalize(new Float32Array(), [1, 1, 0.5]),
     },
     viewport,
     count: 6,
-    framebuffer: regl.prop("image"),
+    framebuffer: regl.prop<P, keyof P>("image"),
   });
 
   const cmdMask = regl({
@@ -197,8 +206,8 @@ function createRunner(tileSize = 256) {
       position: [-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1],
     },
     uniforms: {
-      tMask: regl.prop("mask"),
-      tImage: regl.prop("image"),
+      tMask: regl.prop<P, keyof P>("mask"),
+      tImage: regl.prop<P, keyof P>("image"),
       resolution,
     },
     viewport,
@@ -312,7 +321,7 @@ class HillshadeImageryProvider extends MapboxImageryProvider {
   async processImage(
     image: HTMLImageElement | HTMLCanvasElement,
     mask: HTMLImageElement | HTMLCanvasElement | null,
-    rect: Cesium.Rectangle,
+    rect: Rectangle,
     tileArgs: { x: number; y: number; z: number }
   ): Promise<HTMLImageElement> {
     const runCommands = await this.getRunner();

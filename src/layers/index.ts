@@ -6,7 +6,6 @@ import {
 } from "cesium";
 import h from "@macrostrat/hyper";
 import { ImageryLayer } from "resium";
-import { useAppState, MapLayer } from "~/map-interface/app-state";
 
 type GeoLayerProps = Omit<
   ComponentProps<typeof ImageryLayer>,
@@ -14,10 +13,6 @@ type GeoLayerProps = Omit<
 >;
 
 const GeologyLayer = (props: GeoLayerProps) => {
-  const hasGeology = useAppState((state) =>
-    state.core.mapLayers.has(MapLayer.BEDROCK)
-  );
-
   let geology = useRef(
     new WebMapTileServiceImageryProvider({
       url: "https://macrostrat.org/api/v2/maps/burwell/emphasized/{TileMatrix}/{TileCol}/{TileRow}/tile.png",
@@ -29,8 +24,6 @@ const GeologyLayer = (props: GeoLayerProps) => {
       credit: new Credit("UW-Madison, Macrostrat Lab"),
     })
   );
-
-  if (!hasGeology) return null;
 
   return h(ImageryLayer, { imageryProvider: geology.current, ...props });
 };

@@ -119,5 +119,6 @@ export * from "./actions";
 export * from "./settings-panel";
 export * from "./query-string";
 export * from "./inspector";
+export * from "./layers";
 export { DisplayQuality, MapboxLogo };
 export default CesiumView;

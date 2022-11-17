@@ -1,8 +1,8 @@
 import { useRef } from "react";
+import { Rectangle } from "cesium";
 import { WebMapTileServiceImageryProvider } from "cesium";
 import h from "@macrostrat/hyper";
 import { ImageryLayer } from "resium";
-import { useSelector } from "react-redux";
 import REGL from "regl";
 import { vec3 } from "gl-matrix";
 // https://wwwtyro.net/2019/03/21/advanced-map-shading.html
@@ -10,7 +10,7 @@ import { vec3 } from "gl-matrix";
 type Img = HTMLImageElement | HTMLCanvasElement;
 
 class HillshadeImageryProvider extends WebMapTileServiceImageryProvider {
-  processImage(image: Img, rect: Cesium.Rectangle): Img {
+  processImage(image: Img, rect: Rectangle): Img {
     const canvas = document.createElement("canvas");
     canvas.width = image.width;
     canvas.height = image.height;
@@ -162,7 +162,7 @@ class HillshadeImageryProvider extends WebMapTileServiceImageryProvider {
         tElevation: fboElevation,
         scale: [1, 1],
         resolution: [image.width, image.height],
-        sunDirection: vec3.normalize([], [1, 1, 0.5]),
+        sunDirection: vec3.normalize(new Float32Array(), [1, 1, 0.5]),
       },
       viewport: { x: 0, y: 0, width: image.width, height: image.height },
       count: 6,

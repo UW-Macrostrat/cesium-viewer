@@ -29,7 +29,7 @@ type TileLoadStart = { type: "start"; count: number };
 type TileLoadProgress = { type: "progress"; count: number };
 type TileLoadFinished = { type: "finish" };
 
-type TileLoadEvent = TileLoadStart | TileLoadProgress | TileLoadFinished;
+export type TileLoadEvent = TileLoadStart | TileLoadProgress | TileLoadFinished;
 
 export function TileLoadWatcher({ onLoadEvent, onTilesLoaded = null }) {
   const { viewer } = useCesium();
