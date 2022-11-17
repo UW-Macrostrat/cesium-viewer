@@ -116,5 +116,8 @@ const CesiumView = (props: CesiumViewProps) => {
 
 export * from "./position";
 export * from "./actions";
+export * from "./settings-panel";
+export * from "./query-string";
+export * from "./inspector";
 export { DisplayQuality, MapboxLogo };
 export default CesiumView;
