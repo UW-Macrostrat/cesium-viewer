@@ -6,7 +6,6 @@ import REGL from "regl";
 import { Rectangle } from "cesium";
 import { vec3 } from "gl-matrix";
 import { terrainProvider } from "./provider";
-import axios from "axios";
 // https://wwwtyro.net/2019/03/21/advanced-map-shading.html
 
 type Img = HTMLImageElement | HTMLCanvasElement;
@@ -169,7 +168,8 @@ function createRunner(tileSize = 256) {
       tElevation: regl.prop<P, keyof P>("elevation"),
       scale: [1, 1],
       resolution,
-      sunDirection: vec3.normalize(new Float32Array(), [1, 1, 0.5]),
+      // @ts-ignore
+      sunDirection: vec3.normalize([], [1, 1, 0.5]),
     },
     viewport,
     count: 6,
