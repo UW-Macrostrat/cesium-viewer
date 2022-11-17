@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/cesium-viewer",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Base viewer for digital globes",
   "source": "src/index.ts",
   "main": "./dist/index.js",
@@ -9,7 +9,7 @@
   "scripts": {
     "build": "microbundle",
     "dev": "microbundle --watch",
-    "prepare": "npm run build"
+    "prepack": "npm run build"
   },
   "author": "",
   "license": "ISC",
