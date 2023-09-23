@@ -27,6 +27,9 @@
     "microbundle": "^0.14.2",
     "sass": "^1.49.8"
   },
+  "exports": {
+    "typescript": "./src/index.ts"
+  },
   "peerDependencies": {
     "@blueprintjs/core": "^4.12.0",
     "react": "^16||^17",
