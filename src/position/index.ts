@@ -9,11 +9,14 @@ import {
 } from "resium";
 import { useState, useCallback, useEffect } from "react";
 import { CameraFlyToProps } from "resium/src/CameraFlyTo/CameraFlyTo";
-import { zoomForDistance, nadirCameraParams, translateCameraPosition } from "./interop";
+import {
+  zoomForDistance,
+  nadirCameraParams,
+  translateCameraPosition,
+} from "./interop";
 import { Position, GeographicLocation, CameraParams, ViewInfo } from "./types";
 
 const MARS_RADIUS_SCALAR = 3390 / 6371;
-
 
 const MapClickHandler = ({ onClick, pickFeatures = false }) => {
   const { viewer } = useCesium();
@@ -51,8 +54,6 @@ const MapClickHandler = ({ onClick, pickFeatures = false }) => {
   ]);
 };
 
-
-
 const SelectedPoint = (props: { point: GeographicLocation | null }) => {
   if (props.point == null) return null;
   const { latitude, longitude } = props.point;
@@ -68,7 +69,6 @@ const SelectedPoint = (props: { point: GeographicLocation | null }) => {
 
   return h(Entity, { position, point: pointGraphics });
 };
-
 
 const getMapCenter = (viewer: Cesium.Viewer): Position => {
   const centerPx = new Cesium.Cartesian2(
@@ -147,7 +147,7 @@ function CameraPositioner({
   useEffect(() => {
     // Adjust frustrum to match Mapbox GL JS camera settings by default
     // @ts-ignore
-    viewer.camera.frustum.fov = viewAngle ?? (Math.PI / 4.8);
+    viewer.camera.frustum.fov = viewAngle ?? Math.PI / 4.8;
   }, [viewer, viewAngle]);
 
   useEffect(() => {
@@ -182,15 +182,14 @@ OR h: height above datum (absolute camera ref)
    - Distance/height is the only relevant difference
 */
 
+export type { ViewInfo, CameraParams, GeographicLocation };
+
 export {
-  ViewInfo,
-  CameraParams,
   MapClickHandler,
   SelectedPoint,
   CameraPositioner,
   flyToParams,
   MARS_RADIUS_SCALAR,
-  GeographicLocation,
   translateCameraPosition,
-  nadirCameraParams
+  nadirCameraParams,
 };

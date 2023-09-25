@@ -68,7 +68,7 @@ const GlobeViewer = (props: GlobeViewerProps) => {
   }, [resolutionScale]);
 
   useEffect(() => {
-    const { cesiumElement } = ref.current ?? {};
+    const cesiumElement = ref.current?.cesiumElement;
     if (cesiumElement == null) return;
     cesiumElement.extend(NavigationMixin, {
       distanceLabelFormatter: undefined,
@@ -80,7 +80,7 @@ const GlobeViewer = (props: GlobeViewerProps) => {
     //cesiumElement.scene.logarithmicDepthFarToNearRatio = 1e15;
     //cesiumElement.scene.debugShowFramesPerSecond = true;
     //ref.current.cesiumElement.extend(Cesium.viewerCesiumInspectorMixin, {});
-  }, [ref]);
+  }, [ref.current]);
 
   // useEffect(() => {
   //   const viewer = ref.current.cesiumElement;
