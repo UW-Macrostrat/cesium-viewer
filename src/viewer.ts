@@ -62,23 +62,28 @@ const GlobeViewer = (props: GlobeViewerProps) => {
     } catch {
       return;
     }
+
+    console.log("Setting resolution scale");
     cesiumElement.resolutionScale = resolutionScale;
     // Enable anti-aliasing
     cesiumElement.scene.postProcessStages.fxaa.enabled = true;
-  }, [resolutionScale]);
+  }, [resolutionScale, ref.current]);
 
   useEffect(() => {
     const cesiumElement = ref.current?.cesiumElement;
     if (cesiumElement == null) return;
-    cesiumElement.extend(NavigationMixin, {
-      distanceLabelFormatter: undefined,
-    });
+    console.log("Setting up cesium viewer");
+    // The navigation mixin extremely slows down the viewer,
+    // maybe because it's being added multiple times?
+    // cesiumElement.extend(NavigationMixin, {
+    //   distanceLabelFormatter: undefined,
+    // });
     cesiumElement.scene.requestRenderMode = true;
     cesiumElement.scene.maximumRenderTimeChange = Infinity;
     cesiumElement.scene.screenSpaceCameraController.minimumZoomDistance = 2;
     //cesiumElement.scene.farToNearRatio = 0.5;
     //cesiumElement.scene.logarithmicDepthFarToNearRatio = 1e15;
-    //cesiumElement.scene.debugShowFramesPerSecond = true;
+    cesiumElement.scene.debugShowFramesPerSecond = true;
     //ref.current.cesiumElement.extend(Cesium.viewerCesiumInspectorMixin, {});
   }, [ref.current]);
 
@@ -127,6 +132,10 @@ const GlobeViewer = (props: GlobeViewerProps) => {
       timeline: false,
       imageryProvider: false,
       //shadows: true,
+      // contextOptions: {
+      //   requestWebgl2: true,
+      // },
+      //msaaSamples: 4,
       ...rest,
     },
     children
