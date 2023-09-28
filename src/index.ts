@@ -27,6 +27,7 @@ type CesiumViewProps = Partial<MapChangeTrackerProps> &
     showWireframe?: boolean;
     terrainExaggeration?: number;
     terrainProvider?: TerrainProvider;
+    fogDensity?: number;
     onTileLoadEvent?: (tilesLoaded: number) => void;
     onViewChange?: (view: ViewInfo) => void;
     children?: React.ReactNode;
@@ -61,6 +62,7 @@ const CesiumView = (props: CesiumViewProps) => {
     onTileLoadEvent,
     initialPosition,
     flyTo,
+    fogDensity = 5e-5,
     skyBox = false,
     viewAngle,
     ...rest
@@ -105,7 +107,7 @@ const CesiumView = (props: CesiumViewProps) => {
       children,
       h.if(onClick != null)(MapClickHandler, { onClick }),
       h.if(showWireframe != null)(Wireframe, { enabled: showWireframe }),
-      h(Fog, { density: 5e-5 }),
+      h(Fog, { density: fogDensity }),
       h.if(onTileLoadEvent != null)(TileLoadWatcher, {
         onLoadEvent: onTileLoadEvent,
       }),

@@ -54,20 +54,17 @@ const GlobeViewer = (props: GlobeViewerProps) => {
     resolutionScale = Math.min(window.devicePixelRatio ?? 1, 2);
   }
 
+  console.log("Cesium ref", ref.current);
+
   useEffect(() => {
-    const { cesiumElement } = ref.current ?? {};
+    const cesiumElement = ref.current?.cesiumElement;
     if (cesiumElement == null) return;
-    try {
-      cesiumElement.scene;
-    } catch {
-      return;
-    }
 
     console.log("Setting resolution scale");
     cesiumElement.resolutionScale = resolutionScale;
     // Enable anti-aliasing
     cesiumElement.scene.postProcessStages.fxaa.enabled = true;
-  }, [resolutionScale, ref.current]);
+  }, [resolutionScale]);
 
   useEffect(() => {
     const cesiumElement = ref.current?.cesiumElement;
@@ -81,9 +78,9 @@ const GlobeViewer = (props: GlobeViewerProps) => {
     cesiumElement.scene.requestRenderMode = true;
     cesiumElement.scene.maximumRenderTimeChange = Infinity;
     cesiumElement.scene.screenSpaceCameraController.minimumZoomDistance = 2;
-    //cesiumElement.scene.farToNearRatio = 0.5;
+    //cesiumElement.scene.farToNearRatio = 0.1;
     //cesiumElement.scene.logarithmicDepthFarToNearRatio = 1e15;
-    cesiumElement.scene.debugShowFramesPerSecond = true;
+    //cesiumElement.scene.debugShowFramesPerSecond = true;
     //ref.current.cesiumElement.extend(Cesium.viewerCesiumInspectorMixin, {});
   }, [ref.current]);
 
@@ -130,7 +127,7 @@ const GlobeViewer = (props: GlobeViewerProps) => {
       //skyAtmosphere: true,
       animation: false,
       timeline: false,
-      imageryProvider: false,
+      //imageryProvider: false,
       //shadows: true,
       // contextOptions: {
       //   requestWebgl2: true,
