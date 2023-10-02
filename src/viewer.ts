@@ -45,39 +45,22 @@ const GlobeViewer = (props: GlobeViewerProps) => {
     highResolution = false,
     //showInspector = false,
     showIonLogo = true,
+    maximumScreenSpaceError = 2,
     children,
     ...rest
   } = props;
-
-  let resolutionScale = 1;
-  if (highResolution) {
-    resolutionScale = Math.min(window.devicePixelRatio ?? 1, 2);
-  }
 
   console.log("Cesium ref", ref.current);
 
   useEffect(() => {
     const cesiumElement = ref.current?.cesiumElement;
     if (cesiumElement == null) return;
-
-    console.log("Setting resolution scale");
-    cesiumElement.resolutionScale = resolutionScale;
-    // Enable anti-aliasing
-    cesiumElement.scene.postProcessStages.fxaa.enabled = true;
-  }, [resolutionScale]);
-
-  useEffect(() => {
-    const cesiumElement = ref.current?.cesiumElement;
-    if (cesiumElement == null) return;
-    console.log("Setting up cesium viewer");
     // The navigation mixin extremely slows down the viewer,
     // maybe because it's being added multiple times?
     // cesiumElement.extend(NavigationMixin, {
     //   distanceLabelFormatter: undefined,
     // });
-    cesiumElement.scene.requestRenderMode = true;
-    cesiumElement.scene.maximumRenderTimeChange = Infinity;
-    cesiumElement.scene.screenSpaceCameraController.minimumZoomDistance = 2;
+
     //cesiumElement.scene.farToNearRatio = 0.1;
     //cesiumElement.scene.logarithmicDepthFarToNearRatio = 1e15;
     //cesiumElement.scene.debugShowFramesPerSecond = true;
@@ -122,12 +105,13 @@ const GlobeViewer = (props: GlobeViewerProps) => {
       scene3DOnly: true,
       vrButton: false,
       geocoder: false,
-      resolutionScale,
+      //resolutionScale,
       selectionIndicator: false,
       //skyAtmosphere: true,
       animation: false,
       timeline: false,
       imageryProvider: false,
+      //maximumScreenSpaceError: screenSpaceError,
       //shadows: true,
       // contextOptions: {
       //   requestWebgl2: true,
@@ -135,8 +119,48 @@ const GlobeViewer = (props: GlobeViewerProps) => {
       //msaaSamples: 4,
       ...rest,
     },
-    children
+    [
+      children,
+      h(SceneParameterManager, { highResolution, maximumScreenSpaceError }),
+    ]
   );
 };
+
+function SceneParameterManager({
+  highResolution = false,
+  maximumScreenSpaceError = 2,
+  farToNearRatio = 100,
+}) {
+  const { viewer } = useCesium();
+
+  console.log(highResolution, maximumScreenSpaceError, farToNearRatio);
+
+  useEffect(() => {
+    if (viewer == null) return;
+    const pixelRatio = window.devicePixelRatio ?? 1;
+
+    viewer.scene.requestRenderMode = true;
+    viewer.scene.maximumRenderTimeChange = Infinity;
+    viewer.scene.screenSpaceCameraController.minimumZoomDistance = 2;
+
+    viewer.scene.farToNearRatio = farToNearRatio;
+    //viewer.scene.logarithmicDepthFarToNearRatio = 1e15;
+
+    let screenSpaceError = maximumScreenSpaceError;
+    let devicePixelRatio = window.devicePixelRatio ?? 1;
+    let resolutionScale = 1;
+    if (highResolution) {
+      screenSpaceError *= devicePixelRatio * 0.75;
+      resolutionScale = devicePixelRatio;
+    }
+
+    viewer.scene.globe.maximumScreenSpaceError = screenSpaceError;
+
+    viewer.resolutionScale = resolutionScale;
+    // Enable anti-aliasing
+    viewer.scene.postProcessStages.fxaa.enabled = true;
+  }, [highResolution, viewer, farToNearRatio, maximumScreenSpaceError]);
+  return null;
+}
 
 export { GlobeViewer };

@@ -62,7 +62,7 @@ const CesiumView = (props: CesiumViewProps) => {
     onTileLoadEvent,
     initialPosition,
     flyTo,
-    fogDensity = 5e-5,
+    fogDensity = 5e-4,
     skyBox = false,
     viewAngle,
     ...rest
@@ -84,7 +84,7 @@ const CesiumView = (props: CesiumViewProps) => {
       terrainProvider,
       // not sure why we have to do this...
       terrainExaggeration,
-      highResolution: displayQuality != DisplayQuality.Low,
+      maximumScreenSpaceError: screenSpaceErrors[displayQuality],
       skyBox,
       //skyBox: false,
       //terrainShadows: Cesium.ShadowMode.ENABLED
@@ -97,7 +97,7 @@ const CesiumView = (props: CesiumViewProps) => {
           baseColor: Color.LIGHTGRAY,
           enableLighting: false,
           showGroundAtmosphere: true,
-          maximumScreenSpaceError: screenSpaceErrors[displayQuality],
+          //highResolution: displayQuality != DisplayQuality.Low,
           //shadowMode: Cesium.ShadowMode.ENABLED
         },
         null
