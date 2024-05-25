@@ -28,7 +28,7 @@ const GeologyLayer = (props: GeoLayerProps) => {
   return h(ImageryLayer, { imageryProvider: geology.current, ...props });
 };
 
-const SatelliteLayer = (props) => {
+const SatelliteLayer = ({ accessToken, ...rest }) => {
   let format = ".webp";
   if (window.devicePixelRatio >= 2) format = "@2x.webp";
 
@@ -37,11 +37,11 @@ const SatelliteLayer = (props) => {
       mapId: "mapbox.satellite",
       maximumLevel: 19,
       format,
-      accessToken: process.env.MAPBOX_API_TOKEN,
+      accessToken,
     })
   );
 
-  return h(ImageryLayer, { imageryProvider: satellite.current, ...props });
+  return h(ImageryLayer, { imageryProvider: satellite.current, ...rest });
 };
 
 export { GeologyLayer, SatelliteLayer };

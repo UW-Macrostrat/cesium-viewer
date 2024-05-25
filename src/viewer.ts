@@ -5,7 +5,6 @@ import { Viewer as CesiumViewer } from "cesium";
 import NavigationMixin, { Units } from "@znemz/cesium-navigation";
 
 import { format } from "d3-format";
-import * as Cesium from "cesium";
 
 const fmt = format(".0f");
 
