@@ -5,7 +5,7 @@ import { ImageryLayer } from "resium";
 import REGL from "regl";
 import { Rectangle } from "cesium";
 import { vec3 } from "gl-matrix";
-import { terrainProvider } from "./provider";
+//import { terrainProvider } from "./provider";
 // https://wwwtyro.net/2019/03/21/advanced-map-shading.html
 
 type Img = HTMLImageElement | HTMLCanvasElement;
@@ -17,7 +17,7 @@ type P = {
   mask: any;
   normals: any;
   image: any;
-}
+};
 
 function loadImage(url, imgSrc = null): Promise<HTMLImageElement> {
   const img = imgSrc ?? document.createElement("img");
