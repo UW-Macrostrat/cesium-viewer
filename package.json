@@ -34,5 +34,6 @@
     "@blueprintjs/core": "^4.12.0",
     "react": "^16||^17",
     "react-dom": "^16||^17"
-  }
+  },
+  "packageManager": "yarn@4.5.1"
 }
