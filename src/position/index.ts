@@ -132,6 +132,7 @@ function flyToParams(pos: CameraParams, rest: any = {}) {
 
 export type MapChangeTrackerProps = CameraFlyToProps & {
   onViewChange: (view: ViewInfo) => void;
+  viewChangeThreshold?: number;
   viewAngle?: number;
 };
 
@@ -139,6 +140,7 @@ function CameraPositioner({
   destination,
   onViewChange,
   viewAngle,
+  viewChangeThreshold = 0.05,
   ...rest
 }: MapChangeTrackerProps) {
   const { viewer } = useCesium();
@@ -155,17 +157,24 @@ function CameraPositioner({
     viewer.camera.flyTo({ destination, ...rest });
   }, [destination]);
 
-  const onMoveEnd = useCallback(() => {
-    if (inRequestedFlight) {
-      setInRequestedFlight(false);
-      return;
-    }
-    let params = getPosition(viewer);
-    onViewChange(params);
-  }, [inRequestedFlight, onViewChange, viewer]);
+  useEffect(() => {
+    const cb = () => {
+      if (inRequestedFlight) {
+        setInRequestedFlight(false);
+        return;
+      }
+      let params = getPosition(viewer);
+      onViewChange(params);
+    };
+    viewer.camera.percentageChanged = viewChangeThreshold;
+    viewer.camera.changed.addEventListener(cb);
+    return () => {
+      viewer.camera.changed.removeEventListener(cb);
+    };
+  }, [inRequestedFlight, onViewChange, viewer, viewChangeThreshold]);
 
   // should also use onChange...
-  return h(Camera, { onMoveEnd });
+  return null;
 }
 
 // We should be able to specify a unique viewpoint using 5 parameters as follows
