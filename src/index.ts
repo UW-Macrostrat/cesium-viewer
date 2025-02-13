@@ -73,8 +73,8 @@ const CesiumView = (props: CesiumViewProps) => {
   );
 
   useEffect(() => {
-    console.log("Setting globe position", flyTo);
     if (flyTo == null) return;
+    console.log("Setting globe position", flyTo);
     setMapPosParams(flyTo);
   }, [flyTo]);
 
@@ -103,7 +103,7 @@ const CesiumView = (props: CesiumViewProps) => {
         null
       ),
       h(Scene, { requestRenderMode: true }),
-      h(CameraPositioner, { ...mapPosParams, onViewChange, viewAngle }),
+      h.if(mapPosParams != null)(CameraPositioner, { ...mapPosParams, onViewChange, viewAngle }),
       children,
       h.if(onClick != null)(MapClickHandler, { onClick }),
       h.if(showWireframe != null)(Wireframe, { enabled: showWireframe }),

@@ -1,39 +1,53 @@
 {
   "name": "@macrostrat/cesium-viewer",
-  "version": "1.1.5",
+  "version": "2.0.0",
   "description": "Base viewer for digital globes",
   "source": "src/index.ts",
   "main": "./dist/index.js",
-  "module": "./dist/index.module.js",
+  "module": "./dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "microbundle",
     "dev": "microbundle --watch",
-    "prepack": "npm run build"
+    "prepack": "npm run build",
+    "example": "yarn workspace cesium-viewer-example dev"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@blueprintjs/core": "^5.16.6",
     "@macrostrat/cesium-martini": "^1.2.3",
-    "@macrostrat/hyper": "^2.0.1",
+    "@macrostrat/hyper": "^3.0.6",
     "@macrostrat/mapbox-utils": "^1.1.1",
     "@znemz/cesium-navigation": "^4.0.0",
     "cesium": "^1.81.0",
     "d3-format": "^3.1.0",
+    "gl-matrix": "^3.4.3",
     "regl": "^2.1.0",
     "resium": "^1.13.1"
   },
   "devDependencies": {
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
     "microbundle": "^0.14.2",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
     "sass": "^1.49.8"
   },
   "exports": {
-    "typescript": "./src/index.ts"
+    ".": {
+      "source": "./src/index.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
   },
   "peerDependencies": {
-    "@blueprintjs/core": "^4.12.0",
-    "react": "^16||^17",
-    "react-dom": "^16||^17"
+    "react": "^16||^17||^18",
+    "react-dom": "^16||^17||^18"
   },
+  "workspaces": [
+    "example"
+  ],
   "packageManager": "yarn@4.5.1"
 }
