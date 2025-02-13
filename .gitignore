@@ -8,3 +8,4 @@ dist
 .idea
 .env
 .vite
+.parcel-cache

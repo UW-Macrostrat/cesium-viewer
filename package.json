@@ -1,14 +1,14 @@
 {
   "name": "@macrostrat/cesium-viewer",
-  "version": "2.0.0",
+  "version": "1.2.0",
   "description": "Base viewer for digital globes",
-  "source": "src/index.ts",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "dist/index.d.ts",
+  "source": "./src/index.ts",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
   "scripts": {
-    "build": "microbundle",
-    "dev": "microbundle --watch",
+    "build": "parcel build",
+    "dev": "parcel watch",
     "prepack": "npm run build",
     "example": "yarn workspace cesium-viewer-example dev"
   },
@@ -27,19 +27,26 @@
     "resium": "^1.13.1"
   },
   "devDependencies": {
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "microbundle": "^0.14.2",
+    "@parcel/core": "^2.13.3",
+    "@parcel/packager-ts": "2.13.3",
+    "@parcel/transformer-sass": "2.13.3",
+    "@parcel/transformer-typescript-types": "2.13.3",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "parcel": "^2.13.3",
+    "postcss": "^8.2.1",
+    "postcss-modules": "^6.0.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "sass": "^1.49.8"
+    "sass": "^1.49.8",
+    "typescript": ">=3.0.0"
   },
   "exports": {
     ".": {
       "source": "./src/index.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/esm/index.d.ts"
     }
   },
   "peerDependencies": {
@@ -49,5 +56,5 @@
   "workspaces": [
     "example"
   ],
-  "packageManager": "yarn@4.5.1"
+  "packageManager": "yarn@4.6.0"
 }
