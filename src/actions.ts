@@ -31,7 +31,7 @@ type SetMapLayer = {
   value: ActiveMapLayer;
 };
 
-enum DisplayQuality {
+export enum DisplayQuality {
   High = "high",
   Low = "low",
   Ultra = "ultra",
@@ -88,7 +88,7 @@ type PickFeatures = {
   features: any;
 };
 
-type GlobeAction =
+export type GlobeAction =
   | PickFeatures
   | SetExaggeration
   | SetDisplayQuality
@@ -103,7 +103,7 @@ interface Positions {
   [key: string]: CameraParams;
 }
 
-interface GlobeState {
+export interface GlobeState {
   positions: Positions;
   verticalExaggeration: number;
   displayQuality: DisplayQuality;
@@ -184,9 +184,6 @@ const reducer = (state: GlobeState = initialState, action: GlobeAction) => {
 
 export {
   reducer,
-  GlobeAction,
-  GlobeState,
-  DisplayQuality,
   ActiveMapLayer,
   createInitialState,
 };

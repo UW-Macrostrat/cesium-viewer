@@ -1,7 +1,11 @@
 //import * as Cesium from "cesiumSource/Cesium";
 import h from "@macrostrat/hyper";
 import { GlobeViewer, MapboxLogo } from "./viewer";
-import { DisplayQuality } from "./actions";
+import {
+  DisplayQuality,
+  ActiveMapLayer,
+} from "./actions";
+import type { GlobeAction, GlobeState } from "./actions";
 import {
   MapClickHandler,
   SelectedPoint,
@@ -117,10 +121,15 @@ const CesiumView = (props: CesiumViewProps) => {
 };
 
 export * from "./position";
-export * from "./actions";
 export * from "./settings-panel";
 export * from "./query-string";
 export * from "./inspector";
 export * from "./layers";
-export { DisplayQuality, MapboxLogo };
+export {
+  MapboxLogo,
+  DisplayQuality,
+  GlobeAction,
+  GlobeState,
+  ActiveMapLayer
+};
 export default CesiumView;
