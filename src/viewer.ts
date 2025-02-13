@@ -1,8 +1,8 @@
 import { useEffect, useRef, ComponentProps } from "react";
 import h from "@macrostrat/hyper";
 import { CesiumComponentRef, useCesium, Viewer } from "resium";
-import { Viewer as CesiumViewer } from "cesium";
-import NavigationMixin, { Units } from "@znemz/cesium-navigation";
+import {Viewer as CesiumViewer, viewerCesiumInspectorMixin} from "cesium";
+import cesiumNavigationMixin, { Units } from "@znemz/cesium-navigation";
 import * as Cesium from "cesium";
 
 import { format } from "d3-format";
@@ -80,9 +80,7 @@ const GlobeViewer = (props: GlobeViewerProps) => {
     const el = viewer?.cesiumWidget.creditContainer.querySelector(
       ".cesium-credit-logoContainer"
     );
-    //debugger;
     if (el == null) return;
-    // @ts-ignore
     el.style.display = showIonLogo ? "inline" : "none";
   }, [ref, showIonLogo]);
 
@@ -121,10 +119,28 @@ const GlobeViewer = (props: GlobeViewerProps) => {
     },
     [
       children,
+      h(NavigationMixin),
       h(SceneParameterManager, { highResolution, maximumScreenSpaceError }),
     ]
   );
 };
+
+function NavigationMixin(props) {
+  const {viewer} = useCesium();
+  const { show = true } = props;
+  const isAdded = useRef(false);
+  useEffect(() => {
+    if (viewer == null || isAdded.current) return;
+    // The navigation mixin extremely slows down the viewer,
+    // maybe because it's being added multiple times?
+    viewer.extend(cesiumNavigationMixin, {
+      distanceLabelFormatter: undefined,
+    });
+    isAdded.current = true;
+  }, [viewer, show]);
+
+  return null;
+}
 
 function SceneParameterManager({
   highResolution = false,

@@ -1,5 +1,5 @@
 //import * as Cesium from "cesiumSource/Cesium";
-import h from "@macrostrat/hyper";
+import hyper from "@macrostrat/hyper";
 import { GlobeViewer, MapboxLogo } from "./viewer";
 import {
   DisplayQuality,
@@ -20,7 +20,13 @@ import { Fog, Globe, Scene } from "resium";
 import { CameraFlyToProps } from "resium/src/CameraFlyTo/CameraFlyTo";
 import { useEffect, useState } from "react";
 import { Color, TerrainProvider } from "cesium";
-import "./main.module.sass";
+import styles from "./main.module.sass";
+
+console.log(styles)
+
+import "@znemz/cesium-navigation/dist/index.css";
+
+const h = hyper.styled(styles);
 
 type CesiumViewProps = Partial<MapChangeTrackerProps> &
   React.ComponentProps<typeof GlobeViewer> & {
@@ -90,6 +96,7 @@ const CesiumView = (props: CesiumViewProps) => {
       terrainExaggeration,
       maximumScreenSpaceError: screenSpaceErrors[displayQuality],
       skyBox,
+      className: styles["cesium-viewer-main"],
       //skyBox: false,
       //terrainShadows: Cesium.ShadowMode.ENABLED
       ...rest,

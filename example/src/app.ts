@@ -7,6 +7,8 @@ import CesiumViewer, {
 //import "@znemz/cesium-navigation/dist/index.css";
 import "cesium/Source/Widgets/widgets.css";
 import styles from "./main.module.scss";
+import "./main.css"
+import {MapboxLogo} from "../../src";
 
 
 const accessToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
@@ -35,6 +37,7 @@ export function App() {
           flyTo: null
         }, [
           h(SatelliteLayer, { accessToken }),
+          h(MapboxLogo)
         ]),
       ]),
     ]),

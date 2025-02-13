@@ -5,7 +5,3 @@ body,
   margin: 0;
   padding: 0;
 }
-
-.cesium-cesiumInspector {
-  transform: translate(0, 70px);
-}

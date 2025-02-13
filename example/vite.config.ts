@@ -2,7 +2,7 @@ import { UserConfig } from "vite";
 import cesium from "vite-plugin-cesium";
 import path from "path";
 
-const cesiumRoot = import.meta.resolve("cesium").replace("/index.cjs", "/Build");
+const cesiumRoot = import.meta.resolve("cesium").replace("file://", "").replace("/Source/Cesium.js", "/Build");
 const cesiumBuildPath = path.resolve(cesiumRoot, "Cesium");
 
 const config: UserConfig = {

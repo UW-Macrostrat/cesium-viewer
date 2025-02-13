@@ -36,7 +36,7 @@ const SatelliteLayer = ({ accessToken, ...rest }) => {
     new MapboxImageryProvider({
       mapId: "mapbox.satellite",
       maximumLevel: 19,
-      //format,
+      format,
       accessToken,
     })
   );

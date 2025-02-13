@@ -10,10 +10,23 @@
 //   bottom: 0;
 //   width: 100%;
 
-:global
-  .cesium-viewer-cesiumInspectorContainer
-    bottom: 25px
-    top: auto
+.cesium-viewer-main
+  :global
+    .cesium-viewer-cesiumInspectorContainer
+      pointer-events: none
+      position: absolute
+      bottom: 0
+      top: unset
+
+      .cesium-cesiumInspector
+        pointer-events: all
+
+    .cesium-widget-cesiumNavigationContainer
+      z-index: 50
+
+      .compass, .navigation-controls
+        transform: translateY(-40px)
+      //transform: translate(0, 0)
 
 :global
   div.navigation-control[title="Reset View"]
