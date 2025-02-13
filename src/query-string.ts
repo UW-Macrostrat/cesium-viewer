@@ -12,7 +12,7 @@ export function buildPositionHash(pos: CameraParams): PositionHashParams {
   let res: PositionHashParams = {
     x: pos.longitude.toFixed(4),
     y: pos.latitude.toFixed(4),
-    z: pos.height.toFixed(0),
+    z: pos.height.toFixed(0) + "m",
   };
 
   const elevationAngle = Math.round(90 + pos.pitch);
@@ -41,7 +41,7 @@ function getNumbers(
 }
 
 const defaultPos = {
-  longitude: -122,
+  longitude: -112,
   latitude: 36,
   height: 60000,
   heading: 0,
@@ -67,6 +67,5 @@ export function getInitialPosition(
     pitch: -90 + (e ?? 0),
     roll: 0,
   };
-  console.log("Setting initial position from hash: ", pos);
   return pos;
 }

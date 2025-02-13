@@ -1,2 +1,11 @@
 node_modules
 dist
+
+.pnp.*
+.yarn/unplugged
+.yarn/install-state.gz
+
+.idea
+.env
+.vite
+.parcel-cache

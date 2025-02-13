@@ -1,11 +1,11 @@
 import { useEffect, useRef, ComponentProps } from "react";
 import h from "@macrostrat/hyper";
 import { CesiumComponentRef, useCesium, Viewer } from "resium";
-import { Viewer as CesiumViewer } from "cesium";
-import NavigationMixin, { Units } from "@znemz/cesium-navigation";
+import {Viewer as CesiumViewer, viewerCesiumInspectorMixin} from "cesium";
+import cesiumNavigationMixin, { Units } from "@znemz/cesium-navigation";
+import * as Cesium from "cesium";
 
 import { format } from "d3-format";
-import * as Cesium from "cesium";
 
 const fmt = format(".0f");
 
@@ -45,42 +45,27 @@ const GlobeViewer = (props: GlobeViewerProps) => {
     highResolution = false,
     //showInspector = false,
     showIonLogo = true,
+    maximumScreenSpaceError = 2,
     children,
     ...rest
   } = props;
 
-  let resolutionScale = 1;
-  if (highResolution) {
-    resolutionScale = Math.min(window.devicePixelRatio ?? 1, 2);
-  }
+  console.log("Cesium ref", ref.current);
 
   useEffect(() => {
-    const { cesiumElement } = ref.current ?? {};
+    const cesiumElement = ref.current?.cesiumElement;
     if (cesiumElement == null) return;
-    try {
-      cesiumElement.scene;
-    } catch {
-      return;
-    }
-    cesiumElement.resolutionScale = resolutionScale;
-    // Enable anti-aliasing
-    cesiumElement.scene.postProcessStages.fxaa.enabled = true;
-  }, [resolutionScale]);
+    // The navigation mixin extremely slows down the viewer,
+    // maybe because it's being added multiple times?
+    // cesiumElement.extend(NavigationMixin, {
+    //   distanceLabelFormatter: undefined,
+    // });
 
-  useEffect(() => {
-    const { cesiumElement } = ref.current ?? {};
-    if (cesiumElement == null) return;
-    cesiumElement.extend(NavigationMixin, {
-      distanceLabelFormatter: undefined,
-    });
-    cesiumElement.scene.requestRenderMode = true;
-    cesiumElement.scene.maximumRenderTimeChange = Infinity;
-    cesiumElement.scene.screenSpaceCameraController.minimumZoomDistance = 2;
-    //cesiumElement.scene.farToNearRatio = 0.5;
+    //cesiumElement.scene.farToNearRatio = 0.1;
     //cesiumElement.scene.logarithmicDepthFarToNearRatio = 1e15;
     //cesiumElement.scene.debugShowFramesPerSecond = true;
     //ref.current.cesiumElement.extend(Cesium.viewerCesiumInspectorMixin, {});
-  }, [ref]);
+  }, [ref.current]);
 
   // useEffect(() => {
   //   const viewer = ref.current.cesiumElement;
@@ -95,9 +80,7 @@ const GlobeViewer = (props: GlobeViewerProps) => {
     const el = viewer?.cesiumWidget.creditContainer.querySelector(
       ".cesium-credit-logoContainer"
     );
-    //debugger;
     if (el == null) return;
-    // @ts-ignore
     el.style.display = showIonLogo ? "inline" : "none";
   }, [ref, showIonLogo]);
 
@@ -120,17 +103,80 @@ const GlobeViewer = (props: GlobeViewerProps) => {
       scene3DOnly: true,
       vrButton: false,
       geocoder: false,
-      resolutionScale,
+      //resolutionScale,
       selectionIndicator: false,
       //skyAtmosphere: true,
       animation: false,
       timeline: false,
       imageryProvider: false,
+      //maximumScreenSpaceError: screenSpaceError,
       //shadows: true,
+      // contextOptions: {
+      //   requestWebgl2: true,
+      // },
+      //msaaSamples: 4,
       ...rest,
     },
-    children
+    [
+      children,
+      h(NavigationMixin),
+      h(SceneParameterManager, { highResolution, maximumScreenSpaceError }),
+    ]
   );
 };
+
+function NavigationMixin(props) {
+  const {viewer} = useCesium();
+  const { show = true } = props;
+  const isAdded = useRef(false);
+  useEffect(() => {
+    if (viewer == null || isAdded.current) return;
+    // The navigation mixin extremely slows down the viewer,
+    // maybe because it's being added multiple times?
+    viewer.extend(cesiumNavigationMixin, {
+      distanceLabelFormatter: undefined,
+    });
+    isAdded.current = true;
+  }, [viewer, show]);
+
+  return null;
+}
+
+function SceneParameterManager({
+  highResolution = false,
+  maximumScreenSpaceError = 2,
+  farToNearRatio = 100,
+}) {
+  const { viewer } = useCesium();
+
+  console.log(highResolution, maximumScreenSpaceError, farToNearRatio);
+
+  useEffect(() => {
+    if (viewer == null) return;
+    const pixelRatio = window.devicePixelRatio ?? 1;
+
+    viewer.scene.requestRenderMode = true;
+    viewer.scene.maximumRenderTimeChange = Infinity;
+    viewer.scene.screenSpaceCameraController.minimumZoomDistance = 2;
+
+    viewer.scene.farToNearRatio = farToNearRatio;
+    //viewer.scene.logarithmicDepthFarToNearRatio = 1e15;
+
+    let screenSpaceError = maximumScreenSpaceError;
+    let devicePixelRatio = window.devicePixelRatio ?? 1;
+    let resolutionScale = 1;
+    if (highResolution) {
+      screenSpaceError *= devicePixelRatio * 0.75;
+      resolutionScale = devicePixelRatio;
+    }
+
+    viewer.scene.globe.maximumScreenSpaceError = screenSpaceError;
+
+    viewer.resolutionScale = resolutionScale;
+    // Enable anti-aliasing
+    viewer.scene.postProcessStages.fxaa.enabled = true;
+  }, [highResolution, viewer, farToNearRatio, maximumScreenSpaceError]);
+  return null;
+}
 
 export { GlobeViewer };

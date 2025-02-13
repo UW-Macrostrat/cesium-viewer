@@ -1,7 +1,11 @@
 //import * as Cesium from "cesiumSource/Cesium";
-import h from "@macrostrat/hyper";
+import hyper from "@macrostrat/hyper";
 import { GlobeViewer, MapboxLogo } from "./viewer";
-import { DisplayQuality } from "./actions";
+import {
+  DisplayQuality,
+  ActiveMapLayer,
+} from "./actions";
+import type { GlobeAction, GlobeState } from "./actions";
 import {
   MapClickHandler,
   SelectedPoint,
@@ -16,7 +20,13 @@ import { Fog, Globe, Scene } from "resium";
 import { CameraFlyToProps } from "resium/src/CameraFlyTo/CameraFlyTo";
 import { useEffect, useState } from "react";
 import { Color, TerrainProvider } from "cesium";
-import "./main.module.sass";
+import styles from "./main.module.sass";
+
+console.log(styles)
+
+import "@znemz/cesium-navigation/dist/index.css";
+
+const h = hyper.styled(styles);
 
 type CesiumViewProps = Partial<MapChangeTrackerProps> &
   React.ComponentProps<typeof GlobeViewer> & {
@@ -26,7 +36,8 @@ type CesiumViewProps = Partial<MapChangeTrackerProps> &
     showInspector?: boolean;
     showWireframe?: boolean;
     terrainExaggeration?: number;
-    terrainProvider?: TerrainProvider;
+    terrainProvider?: TerrainProvider | null;
+    fogDensity?: number;
     onTileLoadEvent?: (tilesLoaded: number) => void;
     onViewChange?: (view: ViewInfo) => void;
     children?: React.ReactNode;
@@ -61,6 +72,7 @@ const CesiumView = (props: CesiumViewProps) => {
     onTileLoadEvent,
     initialPosition,
     flyTo,
+    fogDensity = 5e-4,
     skyBox = false,
     viewAngle,
     ...rest
@@ -71,8 +83,8 @@ const CesiumView = (props: CesiumViewProps) => {
   );
 
   useEffect(() => {
-    console.log("Setting globe position", flyTo);
     if (flyTo == null) return;
+    console.log("Setting globe position", flyTo);
     setMapPosParams(flyTo);
   }, [flyTo]);
 
@@ -82,8 +94,9 @@ const CesiumView = (props: CesiumViewProps) => {
       terrainProvider,
       // not sure why we have to do this...
       terrainExaggeration,
-      highResolution: displayQuality != DisplayQuality.Low,
+      maximumScreenSpaceError: screenSpaceErrors[displayQuality],
       skyBox,
+      className: styles["cesium-viewer-main"],
       //skyBox: false,
       //terrainShadows: Cesium.ShadowMode.ENABLED
       ...rest,
@@ -95,17 +108,17 @@ const CesiumView = (props: CesiumViewProps) => {
           baseColor: Color.LIGHTGRAY,
           enableLighting: false,
           showGroundAtmosphere: true,
-          maximumScreenSpaceError: screenSpaceErrors[displayQuality],
+          //highResolution: displayQuality != DisplayQuality.Low,
           //shadowMode: Cesium.ShadowMode.ENABLED
         },
         null
       ),
       h(Scene, { requestRenderMode: true }),
-      h(CameraPositioner, { ...mapPosParams, onViewChange, viewAngle }),
+      h.if(mapPosParams != null)(CameraPositioner, { ...mapPosParams, onViewChange, viewAngle }),
       children,
       h.if(onClick != null)(MapClickHandler, { onClick }),
       h.if(showWireframe != null)(Wireframe, { enabled: showWireframe }),
-      h(Fog, { density: 5e-5 }),
+      h(Fog, { density: fogDensity }),
       h.if(onTileLoadEvent != null)(TileLoadWatcher, {
         onLoadEvent: onTileLoadEvent,
       }),
@@ -115,10 +128,15 @@ const CesiumView = (props: CesiumViewProps) => {
 };
 
 export * from "./position";
-export * from "./actions";
 export * from "./settings-panel";
 export * from "./query-string";
 export * from "./inspector";
 export * from "./layers";
-export { DisplayQuality, MapboxLogo };
+export {
+  MapboxLogo,
+  DisplayQuality,
+  GlobeAction,
+  GlobeState,
+  ActiveMapLayer
+};
 export default CesiumView;
