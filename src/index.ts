@@ -36,7 +36,7 @@ type CesiumViewProps = Partial<MapChangeTrackerProps> &
     showInspector?: boolean;
     showWireframe?: boolean;
     terrainExaggeration?: number;
-    terrainProvider?: TerrainProvider;
+    terrainProvider?: TerrainProvider | null;
     fogDensity?: number;
     onTileLoadEvent?: (tilesLoaded: number) => void;
     onViewChange?: (view: ViewInfo) => void;
