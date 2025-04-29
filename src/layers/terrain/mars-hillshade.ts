@@ -174,8 +174,11 @@ class HillshadeImageryProvider extends WebMapTileServiceImageryProvider {
   }
   requestImage(x, y, z, request) {
     const res = super.requestImage(x, y, z, request);
+    if (res == null) {
+      return res;
+    }
     const rect = this.tilingScheme.tileXYToRectangle(x, y, z);
-    return res?.then((d) => this.processImage(d, rect));
+    return res.then((d) => this.processImage(d, rect));
   }
 }
 
@@ -193,7 +196,7 @@ const MarsHillshadeLayer = (props) => {
       credit: null,
       url:
         process.env.API_BASE_URL +
-        "/tiles/terrain/{TileMatrix}/{TileCol}/{TileRow}.png",
+        "/tiles/dem.terrain-rgb/{TileMatrix}/{TileCol}/{TileRow}.png",
     })
   );
 
