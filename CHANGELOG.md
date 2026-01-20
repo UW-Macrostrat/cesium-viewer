@@ -1,5 +1,10 @@
 # Changelog
 
+## `[1.3.0]` - 2025-01-19
+
+- Upgrade Cesium dependency
+- Switch from `@znemz/cesium-navigation` to `cesium-navigation-es6`
+
 ## `[1.2.1]` - 2025-02-13
 
 Fix error with bundled files
