@@ -1,4 +1,3 @@
-//import * as Cesium from "cesiumSource/Cesium";
 import hyper from "@macrostrat/hyper";
 import { GlobeViewer, MapboxLogo } from "./viewer";
 import {
@@ -21,10 +20,6 @@ import { CameraFlyToProps } from "resium/src/CameraFlyTo/CameraFlyTo";
 import { useEffect, useState } from "react";
 import { Color, TerrainProvider } from "cesium";
 import styles from "./main.module.sass";
-
-console.log(styles)
-
-import "@znemz/cesium-navigation/dist/index.css";
 
 const h = hyper.styled(styles);
 

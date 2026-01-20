@@ -1,13 +1,10 @@
 import { useEffect, useRef, ComponentProps } from "react";
 import h from "@macrostrat/hyper";
 import { CesiumComponentRef, useCesium, Viewer } from "resium";
-import {Viewer as CesiumViewer, viewerCesiumInspectorMixin} from "cesium";
-import cesiumNavigationMixin, { Units } from "@znemz/cesium-navigation";
+import { Cartographic, Viewer as CesiumViewer } from "cesium";
+import CesiumNavigation from "cesium-navigation-es6";
 import * as Cesium from "cesium";
-
-import { format } from "d3-format";
-
-const fmt = format(".0f");
+import "cesium-navigation-es6/dist/styles/cesium-navigation.css";
 
 export type GlobeViewerProps = ComponentProps<typeof Viewer> & {
   highResolution: boolean;
@@ -133,9 +130,16 @@ function NavigationMixin(props) {
     if (viewer == null || isAdded.current) return;
     // The navigation mixin extremely slows down the viewer,
     // maybe because it's being added multiple times?
-    viewer.extend(cesiumNavigationMixin, {
-      distanceLabelFormatter: undefined,
+    new CesiumNavigation(viewer, {
+      enableCompass: true,
+      enableZoomControls: true,
+      enableDistanceLegend: false,
+      enableCompassOuterRing: true,
+      zoomInTooltip: "Zoom in",
+      zoomOutTooltip: "Zoom out",
+      resetTooltip: "Reset view",
     });
+
     isAdded.current = true;
   }, [viewer, show]);
 
