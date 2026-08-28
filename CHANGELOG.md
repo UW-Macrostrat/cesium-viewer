@@ -1,5 +1,10 @@
 # Changelog
 
+## `[1.4.0]` - 2026-08-28
+
+- Upgrade Cesium dependency
+- Broaden `@blueprintjs/core` dependency range
+
 ## `[1.3.0]` - 2025-01-19
 
 - Upgrade Cesium dependency

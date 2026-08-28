@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@macrostrat/cesium-martini": "^1.6.0",
-    "@macrostrat/hyper": "^3.0.6",
-    "cesium": "^1.137.0"
+    "@macrostrat/hyper": "^3.1.1",
+    "cesium": "^1.144.0"
   }
 }

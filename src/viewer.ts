@@ -85,7 +85,7 @@ const GlobeViewer = (props: GlobeViewerProps) => {
   const ellipsoid = undefined;
 
   return h(
-    Viewer,
+    Viewer as any,
     {
       ref,
       full: true,
